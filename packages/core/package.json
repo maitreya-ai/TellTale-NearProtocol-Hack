@@ -1,0 +1,20 @@
+{
+  "name": "@telltale/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Telltale shared library: proof format, vault client, decoys, bait, reporter auth",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@noble/curves": "2.2.0",
+    "@noble/hashes": "2.2.0",
+    "near-api-js": "7.4.0",
+    "zod": "4.6.7"
+  }
+}

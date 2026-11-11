@@ -1,0 +1,17 @@
+{
+  "name": "@telltale/scripts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Testnet setup, bait planting, attack harness and test-vector generation",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@noble/curves": "2.2.0",
+    "@telltale/agent": "workspace:*",
+    "@telltale/core": "workspace:*",
+    "near-api-js": "7.4.0"
+  }
+}

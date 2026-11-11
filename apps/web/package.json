@@ -1,0 +1,38 @@
+{
+  "name": "@telltale/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Telltale dashboard, red-team console and backend API (vinext on Cloudflare Workers)",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev --port 3000",
+    "build": "vite build",
+    "start": "wrangler dev --config dist/server/wrangler.json --port 3000",
+    "deploy": "vinext-cloudflare deploy --config dist/server/wrangler.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "@telltale/agent": "workspace:*",
+    "@telltale/core": "workspace:*",
+    "@vinext/cloudflare": "1.3.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-server-dom-webpack": "19.3.1",
+    "vinext": "1.4.3",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "1.67.0",
+    "@playwright/test": "1.64.1",
+    "@tailwindcss/postcss": "4.3.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.2.1",
+    "@vitejs/plugin-rsc": "0.5.38",
+    "tailwindcss": "4.3.4",
+    "vite": "8.3.5",
+    "wrangler": "4.157.0"
+  }
+}

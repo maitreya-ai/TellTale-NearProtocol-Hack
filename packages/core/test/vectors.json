@@ -1,0 +1,44 @@
+[
+  {
+    "vault": "vault.owner.testnet",
+    "signer_seed_hex": "0707070707070707070707070707070707070707070707070707070707070707",
+    "signer_secret": "ed25519:99eUso3aSbE9tqGSTXzo3TLfKb9RkMTURrHKQ1K7Zh3StnzFNUx8FKCPPPPpR479qsw5zv2WNBKmgiz7WqgAJfM",
+    "signer_pk": "ed25519:GmaDrppBC7P5ARKV8g3djiwP89vz1jLK23V2GBjuAEGB",
+    "key_seed_hex": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+    "key_pk": "ed25519:7v54NWdBtkjuAFJrLGsS2SXnuk8nKam81mZJeeYxVFi9",
+    "receiver": "acme-hosting.owner.testnet",
+    "amount": "500",
+    "nonce": "42",
+    "memo": "invoice",
+    "message": "telltale-pay-v1\nvault:vault.owner.testnet\nkey:ed25519:7v54NWdBtkjuAFJrLGsS2SXnuk8nKam81mZJeeYxVFi9\nto:acme-hosting.owner.testnet\namount:500\nnonce:42\nmemo:52d6e3de4fa0dcc29946695f93940c3e7f26f30e1e39f4b1a49ad98839112786",
+    "signature_b64": "XRc9WOerlFFFcyfZLKAxLWA8ZXwTemo0aUl+EC9N9s+qO1YzrihXdc/xpiF5V7fJiUktyGrXdTTGzLjB7RK5Cw=="
+  },
+  {
+    "vault": "vault.owner.testnet",
+    "signer_seed_hex": "0707070707070707070707070707070707070707070707070707070707070707",
+    "signer_secret": "ed25519:99eUso3aSbE9tqGSTXzo3TLfKb9RkMTURrHKQ1K7Zh3StnzFNUx8FKCPPPPpR479qsw5zv2WNBKmgiz7WqgAJfM",
+    "signer_pk": "ed25519:GmaDrppBC7P5ARKV8g3djiwP89vz1jLK23V2GBjuAEGB",
+    "key_seed_hex": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+    "key_pk": "ed25519:7v54NWdBtkjuAFJrLGsS2SXnuk8nKam81mZJeeYxVFi9",
+    "receiver": "acme-hosting.owner.testnet",
+    "amount": "1000000000000000000000000",
+    "nonce": "1731369600000",
+    "memo": "",
+    "message": "telltale-pay-v1\nvault:vault.owner.testnet\nkey:ed25519:7v54NWdBtkjuAFJrLGsS2SXnuk8nKam81mZJeeYxVFi9\nto:acme-hosting.owner.testnet\namount:1000000000000000000000000\nnonce:1731369600000\nmemo:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "signature_b64": "EtVorWPt+WgxnNotx4To9S1P6LXVkDWsh1wA58dv1FKwWFLKKk6Ck4v/oYpiiM3/YlrS3D3PpI5uHK+aUzdzDw=="
+  },
+  {
+    "vault": "vault.owner.testnet",
+    "signer_seed_hex": "0707070707070707070707070707070707070707070707070707070707070707",
+    "signer_secret": "ed25519:99eUso3aSbE9tqGSTXzo3TLfKb9RkMTURrHKQ1K7Zh3StnzFNUx8FKCPPPPpR479qsw5zv2WNBKmgiz7WqgAJfM",
+    "signer_pk": "ed25519:GmaDrppBC7P5ARKV8g3djiwP89vz1jLK23V2GBjuAEGB",
+    "key_seed_hex": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+    "key_pk": "ed25519:7v54NWdBtkjuAFJrLGsS2SXnuk8nKam81mZJeeYxVFi9",
+    "receiver": "northwind-data.owner.testnet",
+    "amount": "250000000000000000000000",
+    "nonce": "1731369600001",
+    "memo": "INV-2026-11 · données ✓",
+    "message": "telltale-pay-v1\nvault:vault.owner.testnet\nkey:ed25519:7v54NWdBtkjuAFJrLGsS2SXnuk8nKam81mZJeeYxVFi9\nto:northwind-data.owner.testnet\namount:250000000000000000000000\nnonce:1731369600001\nmemo:d1974b4708d01339c30accc1f7a1c3371e7adb9c75f444a3f2b7742765c5a5be",
+    "signature_b64": "3OvdtizPx8xrWqeDszUvbL3Ydxx+t+j95I0CVwjRfXDCjbPHFSJWbzDTNfeO/SLM/FuSLJEEwQQGu8JsfzOlDw=="
+  }
+]

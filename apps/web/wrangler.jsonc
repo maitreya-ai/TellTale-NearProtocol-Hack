@@ -1,0 +1,40 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "telltale",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "vinext/server/fetch-handler",
+  "assets": {
+    "directory": "dist/client",
+    "html_handling": "none",
+    "not_found_handling": "none",
+    "binding": "ASSETS",
+    "run_worker_first": ["/*", "!/_next/static/*", "!/*/_next/static/*"],
+  },
+  "observability": { "enabled": true },
+  // Public, non-secret settings. Account ids and keys are set as secrets with
+  // `bun run cf:secrets` (reads ../../.env.local). Local dev reads .dev.vars.
+  "vars": {
+    "NEAR_NETWORK": "testnet",
+    "NEAR_RPC_URL": "https://test.rpc.fastnear.com",
+    "NEAR_EXPLORER_URL": "https://testnet.nearblocks.io",
+    "NEAR_AI_BASE_URL": "https://cloud-api.near.ai/v1",
+    "NEAR_AI_MODEL": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "TELLTALE_DEMO": "1",
+    "TELLTALE_MOCK": "0",
+  },
+  "env": {
+    // Used by Playwright: CLOUDFLARE_ENV=e2e reads .dev.vars.e2e (simulation, no secrets).
+    "e2e": {
+      "vars": {
+        "NEAR_NETWORK": "testnet",
+        "NEAR_RPC_URL": "https://test.rpc.fastnear.com",
+        "NEAR_EXPLORER_URL": "https://testnet.nearblocks.io",
+        "NEAR_AI_BASE_URL": "https://cloud-api.near.ai/v1",
+        "NEAR_AI_MODEL": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "TELLTALE_DEMO": "1",
+        "TELLTALE_MOCK": "1",
+      },
+    },
+  },
+}

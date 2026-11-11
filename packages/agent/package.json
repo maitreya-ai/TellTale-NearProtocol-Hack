@@ -1,0 +1,20 @@
+{
+  "name": "@telltale/agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Telltale demo agent: NEAR AI Cloud tool loop, scripted model and attack scenarios",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@telltale/core": "workspace:*",
+    "openai": "7.50.0",
+    "zod": "4.6.7",
+    "near-api-js": "7.4.0"
+  }
+}

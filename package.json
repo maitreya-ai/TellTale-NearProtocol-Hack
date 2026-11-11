@@ -1,0 +1,52 @@
+{
+  "name": "telltale",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Telltale: every AI agent key is a tripwire. Built at NEAR HACKATHON 2026.",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "scripts"
+  ],
+  "scripts": {
+    "dev": "bun run --cwd apps/web dev",
+    "build": "bun run contract:build && bun run --cwd apps/web build",
+    "contract:build": "cd contracts/vault && cargo near build non-reproducible-wasm",
+    "contract:test": "cd contracts/vault && cargo test",
+    "typecheck": "bun run --filter '*' typecheck",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "test": "jest",
+    "test:all": "bun run test && bun run contract:test",
+    "e2e": "bun run --cwd apps/web e2e",
+    "setup:testnet": "bun scripts/setup-testnet.ts",
+    "plant": "bun scripts/plant-bait.ts",
+    "attack:steal": "bun scripts/attacks/stealer-skill.ts",
+    "attack:drain": "bun scripts/attacks/drain.ts",
+    "mcp": "bun packages/mcp/src/index.ts",
+    "prepare": "husky",
+    "scenario": "bun scripts/run-scenario.ts",
+    "rearm": "bun scripts/rearm.ts",
+    "lock-vault": "bun scripts/lock-vault.ts",
+    "cf:secrets": "bun scripts/cf-secrets.ts",
+    "deploy": "bun run --cwd apps/web deploy",
+    "vectors": "bun scripts/gen-vectors.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@jest/globals": "30.5.2",
+    "@swc/core": "1.16.21",
+    "@swc/jest": "0.2.39",
+    "@types/jest": "30.0.0",
+    "@types/node": "24.19.2",
+    "eslint": "10.14.0",
+    "globals": "17.14.0",
+    "husky": "9.1.7",
+    "jest": "30.5.2",
+    "lint-staged": "17.6.0",
+    "prettier": "3.9.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1"
+  }
+}

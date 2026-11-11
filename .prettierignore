@@ -1,0 +1,9 @@
+node_modules
+.next
+contracts/**/target
+coverage
+demo
+bun.lock
+*.wasm
+apps/web/playwright-report
+apps/web/test-results

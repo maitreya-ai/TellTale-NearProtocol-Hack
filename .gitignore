@@ -1,0 +1,34 @@
+# dependencies
+node_modules/
+.bun/
+
+# builds
+apps/web/dist/
+.vinext/
+.wrangler/
+.dev.vars
+.next/
+out/
+dist/
+coverage/
+contracts/**/target/
+*.tsbuildinfo
+next-env.d.ts
+
+# tests
+apps/web/test-results/
+apps/web/playwright-report/
+apps/web/blob-report/
+
+# secrets: never commit keys
+.env
+.env.local
+.env.*.local
+*.pem
+
+# generated bait and loot (contains private keys by design)
+demo/*
+!demo/README.md
+
+# os
+.DS_Store

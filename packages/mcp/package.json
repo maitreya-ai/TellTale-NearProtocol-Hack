@@ -1,0 +1,23 @@
+{
+  "name": "@telltale/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MCP server that gives any agent Telltale decoy tools",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "telltale-mcp": "./src/index.ts"
+  },
+  "exports": {
+    ".": "./src/server.ts"
+  },
+  "scripts": {
+    "start": "bun src/index.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "@telltale/core": "workspace:*",
+    "zod": "4.6.7"
+  }
+}
