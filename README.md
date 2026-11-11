@@ -54,11 +54,13 @@ printf 'TELLTALE_MOCK=1\nTELLTALE_DEMO=1\n' > apps/web/.dev.vars
 bun run dev            # http://localhost:3000
 ```
 
-1. Open http://localhost:3000. You see **ARMED** with four `pay only` agent keys.
-2. Click **Stolen .env**. The console shows the skill stealing three files, the thief's first key returning **TRIPPED**, the second key rejected with "access key does not exist", and the agent locked out. The plate turns red and the key list is empty.
+The app has three pages: **Overview** (vault state, keys, trips, payments), **Attack lab** (run scenarios with a live log) and **How it works**.
+
+1. Open http://localhost:3000. The Overview shows **ARMED** with four `pay only` agent keys.
+2. Go to **Attack lab** and run **Stolen .env**. The log shows the skill stealing three files, the thief's first key returning **TRIPPED**, the second key rejected with "access key does not exist", and the agent locked out. The status turns red. Back on Overview, the key list is empty and the trip log has a new entry.
 3. Click **Re-arm vault (owner)**. Four fresh keys appear and the epoch goes up by one.
-4. Click **Poisoned invoice**. The agent pays the real hosting invoice, then follows the invoice's instruction to call `raise_spending_limit`. That decoy call trips the vault before the 0.45 NEAR payment to the attacker's account can happen.
-5. Click **Honest run** after re-arming. Two supplier invoices are paid and the vault stays armed.
+4. Run **Poisoned invoice**. The agent pays the real hosting invoice, then follows the invoice's instruction to call `raise_spending_limit`. That decoy call trips the vault before the 0.45 NEAR payment to the attacker's account can happen.
+5. Re-arm, then run **Honest run**. Two supplier invoices are paid and the vault stays armed.
 
 ## Run it on NEAR testnet
 
@@ -122,14 +124,14 @@ A decoy call sends an HMAC-signed report to `/api/report`, which trips the vault
 
 ## Repository
 
-| Path              | What                                                                                            |
-| ----------------- | ----------------------------------------------------------------------------------------------- |
-| `contracts/vault` | Rust contract (near-sdk 5.30): proofs, trip, re-arm, reporters, events, 22 unit tests           |
-| `packages/core`   | Proof format, vault client, signer, key derivation, bait, decoy tools, reporter HMAC            |
-| `packages/agent`  | Agent loop (NEAR AI Cloud or a scripted naive agent), scenarios, simulated vault, live wiring   |
-| `packages/mcp`    | MCP server with decoy tools                                                                     |
-| `apps/web`        | Dashboard, red-team console and API routes on Cloudflare Workers (vinext + Wrangler)            |
-| `scripts`         | Testnet setup, bait, attack harness, re-arm, vault lock, secrets upload, test-vector generation |
+| Path              | What                                                                                                                          |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `contracts/vault` | Rust contract (near-sdk 5.30): proofs, trip, re-arm, reporters, events, 22 unit tests                                         |
+| `packages/core`   | Proof format, vault client, signer, key derivation, bait, decoy tools, reporter HMAC                                          |
+| `packages/agent`  | Agent loop (NEAR AI Cloud or a scripted naive agent), scenarios, simulated vault, live wiring                                 |
+| `packages/mcp`    | MCP server with decoy tools                                                                                                   |
+| `apps/web`        | Overview, Attack lab and How it works pages (shadcn/ui, light theme) and API routes on Cloudflare Workers (vinext + Wrangler) |
+| `scripts`         | Testnet setup, bait, attack harness, re-arm, vault lock, secrets upload, test-vector generation                               |
 
 ### Contract interface
 
@@ -147,7 +149,7 @@ The proof message format is in [docs/architecture.md](docs/architecture.md#34-pr
 ```bash
 bun run test            # Jest: core, agent scenarios, MCP server, web API helpers (34 tests)
 bun run contract:test   # cargo test: 22 contract unit tests
-bun run e2e             # Playwright: dashboard on desktop and phone, all three scenarios (10 tests)
+bun run e2e             # Playwright on the production Worker bundle: 3 pages, 3 scenarios, desktop + phone (16 tests)
 bun run typecheck && bun run lint
 ```
 

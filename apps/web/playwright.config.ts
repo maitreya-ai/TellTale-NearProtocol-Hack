@@ -14,11 +14,15 @@ export default defineConfig({
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
     { name: "phone", use: { ...devices["Pixel 7"] } },
   ],
+  // Tests the production Worker bundle (simulation vars from env.e2e) under wrangler dev.
+  // Set E2E_DEV=1 to test the Vite dev server instead.
   webServer: {
-    command: `vite dev --port ${port} --strictPort`,
+    command: process.env.E2E_DEV
+      ? `vite dev --port ${port} --strictPort`
+      : `vite build && wrangler dev --config dist/server/wrangler.json --port ${port} --ip 127.0.0.1`,
     env: { CLOUDFLARE_ENV: "e2e" },
     url: `http://localhost:${port}/api/health`,
     reuseExistingServer: false,
-    timeout: 120_000,
+    timeout: 240_000,
   },
 });

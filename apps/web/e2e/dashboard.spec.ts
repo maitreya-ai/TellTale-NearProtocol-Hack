@@ -1,32 +1,34 @@
 import { expect, test, type Page } from "@playwright/test";
 
-async function rearmIfTripped(page: Page) {
+async function openLab(page: Page) {
+  await page.goto("/lab");
+  await expect(page.getByTestId("lab-state")).not.toHaveText("…");
   const rearm = page.getByTestId("rearm");
   if (await rearm.isEnabled()) {
     await rearm.click();
-    await expect(page.getByTestId("state-word")).toHaveText("ARMED");
+    await expect(page.getByTestId("lab-state")).toHaveText("ARMED");
   }
 }
 
-test.describe("Telltale dashboard (simulation)", () => {
-  test.beforeEach(async ({ page }) => {
+test.describe("Telltale (simulation)", () => {
+  test("overview shows an armed vault with four pay-only agent keys", async ({ page }) => {
+    await openLab(page);
     await page.goto("/");
     await expect(page.getByTestId("sim-banner")).toBeVisible();
-    await expect(page.getByTestId("state-word")).not.toHaveText("…");
-    await rearmIfTripped(page);
-  });
-
-  test("shows an armed vault with four pay-only agent keys", async ({ page }) => {
     await expect(page.getByTestId("state-word")).toHaveText("ARMED");
     await expect(page.getByTestId("key-count")).toHaveText("4");
     await expect(page.getByTestId("keys").getByText("pay only")).toHaveCount(4);
   });
 
   test("stolen .env trips the vault and deletes every key", async ({ page }) => {
+    await openLab(page);
     await page.getByTestId("run-stolen-env").click();
     const terminal = page.getByTestId("terminal");
     await expect(terminal).toContainText("TRIPPED: key used without a signer proof");
     await expect(terminal).toContainText("access key does not exist");
+    await expect(page.getByTestId("lab-state")).toHaveText("TRIPPED");
+
+    await page.goto("/");
     await expect(page.getByTestId("state-word")).toHaveText("TRIPPED");
     await expect(page.getByTestId("key-count")).toHaveText("0");
     await expect(page.getByTestId("trips")).toContainText("Stolen key used without a proof");
@@ -35,29 +37,43 @@ test.describe("Telltale dashboard (simulation)", () => {
   test("poisoned invoice trips through the decoy tool, then re-arm restores keys", async ({
     page,
   }) => {
+    await openLab(page);
     await page.getByTestId("run-poisoned-invoice").click();
     await expect(page.getByTestId("terminal")).toContainText(
       "Decoy tool called: raise_spending_limit",
     );
-    await expect(page.getByTestId("state-word")).toHaveText("TRIPPED");
-    await expect(page.getByTestId("trips")).toContainText("Agent called a decoy tool");
+    await expect(page.getByTestId("lab-state")).toHaveText("TRIPPED");
     await page.getByTestId("rearm").click();
-    await expect(page.getByTestId("state-word")).toHaveText("ARMED");
+    await expect(page.getByTestId("lab-state")).toHaveText("ARMED");
+
+    await page.goto("/");
     await expect(page.getByTestId("key-count")).toHaveText("4");
+    await expect(page.getByTestId("trips")).toContainText("Agent called a decoy tool");
   });
 
   test("honest run pays invoices and stays armed", async ({ page }) => {
+    await openLab(page);
     await page.getByTestId("run-honest").click();
     await expect(page.getByTestId("terminal")).toContainText(
       "Done. Vault still armed. 2 payments made.",
     );
-    await expect(page.getByTestId("state-word")).toHaveText("ARMED");
+    await expect(page.getByTestId("lab-state")).toHaveText("ARMED");
   });
 
-  test("the page never scrolls sideways", async ({ page }) => {
-    const overflow = await page.evaluate(
-      () => document.documentElement.scrollWidth - window.innerWidth,
-    );
-    expect(overflow).toBeLessThanOrEqual(0);
+  test("how it works explains the proof", async ({ page }) => {
+    await page.goto("/how-it-works");
+    await expect(page.getByRole("heading", { name: "How it works" })).toBeVisible();
+    await expect(page.getByText("telltale-pay-v1", { exact: false })).toBeVisible();
   });
+
+  for (const path of ["/", "/lab", "/how-it-works"]) {
+    test(`${path} never scrolls sideways`, async ({ page }) => {
+      await page.goto(path);
+      await page.waitForLoadState("networkidle");
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - window.innerWidth,
+      );
+      expect(overflow).toBeLessThanOrEqual(0);
+    });
+  }
 });

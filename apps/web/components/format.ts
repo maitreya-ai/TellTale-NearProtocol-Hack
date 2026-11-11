@@ -48,3 +48,13 @@ export function txLink(explorerUrl: string, tx: string): string | null {
 export function accountLink(explorerUrl: string, account: string): string | null {
   return explorerUrl ? `${explorerUrl.replace(/\/$/, "")}/address/${account}` : null;
 }
+
+export function shortAccount(id: string, max = 28): string {
+  return id.length <= max ? id : `${id.slice(0, max - 10)}…${id.slice(-9)}`;
+}
+
+export function pct(part: string | bigint, whole: string | bigint): number {
+  const w = BigInt(whole);
+  if (w === 0n) return 0;
+  return Math.min(100, Number((BigInt(part) * 1000n) / w) / 10);
+}

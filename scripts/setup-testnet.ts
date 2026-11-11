@@ -28,6 +28,7 @@ import {
   teraToGas,
   type KeyPairString,
 } from "near-api-js";
+import { parseSeedPhrase } from "near-api-js/seed-phrase";
 import { flag } from "./lib/cli";
 import { mergeEnvFile, writeDevVars } from "./lib/env-file";
 
@@ -39,6 +40,15 @@ const env = process.env;
 if ((env.NEAR_NETWORK || "testnet") !== "testnet")
   throw new Error("setup-testnet only runs on testnet");
 const rpcUrl = env.NEAR_RPC_URL || "https://test.rpc.fastnear.com";
+const updates: Record<string, string> = {};
+
+// Wallets export a 12-word seed phrase; derive the key the scripts and Worker use.
+if (!env.OWNER_PRIVATE_KEY?.trim() && env.OWNER_SEED_PHRASE?.trim()) {
+  const derived = parseSeedPhrase(env.OWNER_SEED_PHRASE.trim()).toString();
+  env.OWNER_PRIVATE_KEY = derived;
+  updates.OWNER_PRIVATE_KEY = derived;
+  console.log("• derived OWNER_PRIVATE_KEY from OWNER_SEED_PHRASE");
+}
 const explorer = env.NEAR_EXPLORER_URL || "https://testnet.nearblocks.io";
 const { ownerId, ownerKey } = ownerConfig();
 if (/^[0-9a-f]{64}$/.test(ownerId))
@@ -50,7 +60,6 @@ if (!existsSync(WASM)) throw new Error(`Missing ${WASM}. Run \`bun run contract:
 const provider = new JsonRpcProvider({ url: rpcUrl });
 const owner = new Account(ownerId, provider, ownerKey);
 const ownerPublicKey = KeyPair.fromString(ownerKey).getPublicKey().toString();
-const updates: Record<string, string> = {};
 const log = (msg: string) => console.log(`• ${msg}`);
 
 async function exists(accountId: string): Promise<boolean> {
