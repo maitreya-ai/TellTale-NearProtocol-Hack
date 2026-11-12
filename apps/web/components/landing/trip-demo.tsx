@@ -125,22 +125,29 @@ export function TripDemo() {
   const [cursor, setCursor] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [driven, setDriven] = useState(false);
+  // Bumped on every click. A timer from an earlier run that fires after a click must not
+  // advance the script, or the visitor's run skips a step.
+  const [run, setRun] = useState(0);
+  const runRef = useRef(0);
 
   useEffect(() => {
     if (!playing || !inView || (reducedMotion && !driven)) return;
     const [delay, action, stop] = SCRIPT[cursor]!;
     const timer = setTimeout(
       () => {
+        if (run !== runRef.current) return;
         dispatch(action);
         if (driven && stop) setPlaying(false);
-        setCursor((c) => (c + 1 >= SCRIPT.length ? STEAL_AT : c + 1));
+        setCursor(cursor + 1 >= SCRIPT.length ? STEAL_AT : cursor + 1);
       },
       driven && (cursor === STEAL_AT || cursor === REARM_AT) ? 250 : delay,
     );
     return () => clearTimeout(timer);
-  }, [cursor, playing, inView, reducedMotion, driven]);
+  }, [cursor, playing, inView, reducedMotion, driven, run]);
 
   const jump = (to: number) => {
+    runRef.current += 1;
+    setRun(runRef.current);
     setDriven(true);
     setCursor(to);
     setPlaying(true);
