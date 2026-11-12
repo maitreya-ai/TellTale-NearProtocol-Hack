@@ -19,6 +19,8 @@
     "NEAR_AI_BASE_URL": "https://cloud-api.near.ai/v1",
     "NEAR_AI_MODEL": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
     "GROQ_MODEL": "openai/gpt-oss-120b",
+    // Which live LLM the agent uses when both keys are set: "near-ai" or "groq".
+    "LLM_PROVIDER": "groq",
     "TELLTALE_DEMO": "1",
     "TELLTALE_MOCK": "0",
     // Absolute base for social-card URLs (pages render in the Worker at request time).

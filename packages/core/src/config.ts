@@ -106,25 +106,31 @@ export interface AiConfig {
 }
 
 /**
- * The live LLM for the agent, over an OpenAI-compatible API. NEAR AI Cloud is used when
- * NEAR_AI_API_KEY is set; otherwise Groq when GROQ_API_KEY is set. Null when neither is.
+ * The live LLM for the agent, over an OpenAI-compatible API. LLM_PROVIDER ("near-ai" or
+ * "groq") picks one explicitly when its key is set. Otherwise NEAR AI Cloud is used when
+ * NEAR_AI_API_KEY is set, then Groq when GROQ_API_KEY is set. Null when neither is.
  */
 export function aiConfigOrNull(env: Env = process.env): AiConfig | null {
-  if (env.NEAR_AI_API_KEY?.trim())
-    return {
-      provider: "NEAR AI Cloud",
-      apiKey: env.NEAR_AI_API_KEY.trim(),
-      baseUrl: env.NEAR_AI_BASE_URL || "https://cloud-api.near.ai/v1",
-      model: env.NEAR_AI_MODEL || "deepseek-ai/DeepSeek-V4.1-Flash-1017",
-    };
-  if (env.GROQ_API_KEY?.trim())
-    return {
-      provider: "Groq",
-      apiKey: env.GROQ_API_KEY.trim(),
-      baseUrl: "https://api.groq.com/openai/v1",
-      model: env.GROQ_MODEL || "openai/gpt-oss-120b",
-    };
-  return null;
+  const near: AiConfig | null = env.NEAR_AI_API_KEY?.trim()
+    ? {
+        provider: "NEAR AI Cloud",
+        apiKey: env.NEAR_AI_API_KEY.trim(),
+        baseUrl: env.NEAR_AI_BASE_URL || "https://cloud-api.near.ai/v1",
+        model: env.NEAR_AI_MODEL || "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      }
+    : null;
+  const groq: AiConfig | null = env.GROQ_API_KEY?.trim()
+    ? {
+        provider: "Groq",
+        apiKey: env.GROQ_API_KEY.trim(),
+        baseUrl: "https://api.groq.com/openai/v1",
+        model: env.GROQ_MODEL || "openai/gpt-oss-120b",
+      }
+    : null;
+  const preferred = env.LLM_PROVIDER?.trim().toLowerCase();
+  if (preferred === "groq" && groq) return groq;
+  if (preferred === "near-ai" && near) return near;
+  return near ?? groq;
 }
 
 export function aiConfig(env: Env = process.env): AiConfig {

@@ -22,6 +22,15 @@ describe("live LLM config", () => {
     expect(aiLabel({ GROQ_API_KEY: "groq-key" })).toBe("Groq · openai/gpt-oss-120b");
   });
 
+  it("lets LLM_PROVIDER pick Groq even when a NEAR AI key is stored", () => {
+    const env = { NEAR_AI_API_KEY: "near-key", GROQ_API_KEY: "groq-key", LLM_PROVIDER: "groq" };
+    expect(aiConfigOrNull(env)?.provider).toBe("Groq");
+    expect(aiConfigOrNull({ ...env, LLM_PROVIDER: "near-ai" })?.provider).toBe("NEAR AI Cloud");
+    expect(aiConfigOrNull({ GROQ_API_KEY: "groq-key", LLM_PROVIDER: "near-ai" })?.provider).toBe(
+      "Groq",
+    );
+  });
+
   it("reports no live model without a key", () => {
     expect(aiConfigOrNull({})).toBeNull();
     expect(aiLabel({})).toBeNull();

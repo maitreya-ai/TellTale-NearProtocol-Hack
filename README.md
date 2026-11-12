@@ -14,7 +14,7 @@ A NEAR vault for AI agents. If a stolen agent key is used, or a hijacked agent r
 [![NEAR testnet](https://img.shields.io/badge/NEAR-testnet-18181b?style=flat-square)](https://testnet.nearblocks.io/address/vault.telltale.testnet)
 ![Contract](https://img.shields.io/badge/contract-Rust_·_near--sdk_5.30-b7410e?style=flat-square)
 ![App](https://img.shields.io/badge/app-Next.js_16_·_Cloudflare_Workers-18181b?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-98_passing-059669?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-99_passing-059669?style=flat-square)
 [![License](https://img.shields.io/badge/license-MIT-71717a?style=flat-square)](LICENSE)
 
 <img src="docs/screenshots/banner.png" alt="Telltale: every agent key is a tripwire. A vault card shows one agent key used without a proof, the vault tripped and every key deleted." width="100%" />
@@ -141,7 +141,7 @@ Each piece is a protocol feature, not a convention.
 - **Contracts that delete keys.** The vault deletes keys on its own account, so the alarm removes them without the owner.
 - **Cheap proofs.** `env::ed25519_verify` makes checking a proof on every payment inexpensive.
 - **Owner-only re-arm.** Owner methods require 1 yoctoNEAR attached, which forces a full-access key. A dApp login key the owner leaked elsewhere can't re-arm or drain the vault.
-- **NEAR AI Cloud.** The agent runs on any OpenAI-compatible model. NEAR AI Cloud is used whenever `NEAR_AI_API_KEY` is set; the hosted demo currently runs Groq's `gpt-oss-120b` (`GROQ_API_KEY`).
+- **NEAR AI Cloud.** The agent runs on any OpenAI-compatible model. NEAR AI Cloud is preferred whenever `NEAR_AI_API_KEY` is set, and `LLM_PROVIDER` (`near-ai` or `groq`) picks one explicitly. The hosted demo runs Groq's `gpt-oss-120b`.
 
 ## Protect your own agent
 
@@ -252,7 +252,7 @@ The proof message format is in [docs/architecture.md](docs/architecture.md#34-pr
 ## Tests
 
 ```bash
-bun run test            # Jest: core, agent scenarios, LLM config, MCP server, web API helpers (38 tests)
+bun run test            # Jest: core, agent scenarios, LLM config, MCP server, web API helpers (39 tests)
 bun run contract:test   # cargo test: 22 contract unit tests
 bun run e2e             # Playwright on the production Worker bundle, desktop + phone (38 tests)
 bun run typecheck && bun run lint
