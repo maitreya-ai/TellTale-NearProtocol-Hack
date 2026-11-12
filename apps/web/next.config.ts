@@ -23,5 +23,7 @@ export default function config(phase: string): NextConfig {
     poweredByHeader: false,
     // Don't write AGENTS.md on `next dev`.
     agentRules: false,
+    // The floating dev badge sits on top of the sidebar footer.
+    devIndicators: false,
   };
 }

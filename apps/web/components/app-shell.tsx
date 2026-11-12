@@ -1,53 +1,80 @@
 "use client";
 
-import { BookOpen, ExternalLink, LayoutDashboard, Menu, Swords } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  BookOpen,
+  ChevronRight,
+  FlaskConical,
+  LayoutDashboard,
+  Menu,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { REPO_URL } from "@/lib/site";
 import { cn } from "@/lib/utils";
-import { Lamp, Logo } from "./brand";
-import { GitHubMark } from "./icons";
+import { Lamp, LogoMark, StatusBadge, Wordmark } from "./brand";
 import { accountLink, shortAccount } from "./format";
+import { GitHubMark } from "./icons";
+import { CopyButton } from "./kit";
 import { useVault } from "./vault-provider";
 
-import { REPO_URL } from "@/lib/site";
+type NavItem = { href: string; label: string; icon: LucideIcon };
 
-const NAV = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/lab", label: "Attack lab", icon: Swords },
-  { href: "/how-it-works", label: "How it works", icon: BookOpen },
-] as const;
+const GROUPS: { label: string; items: NavItem[] }[] = [
+  {
+    label: "Console",
+    items: [
+      { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+      { href: "/lab", label: "Attack lab", icon: FlaskConical },
+    ],
+  },
+  {
+    label: "Learn",
+    items: [{ href: "/how-it-works", label: "How it works", icon: BookOpen }],
+  },
+];
 
-function VaultPill() {
+const ALL = GROUPS.flatMap((g) => g.items);
+
+function VaultCard() {
   const { snap } = useVault();
   const tripped = snap?.status.frozen ?? false;
+  const keys = snap?.accessKeys.filter((k) => k.permission !== "FullAccess").length ?? 0;
   return (
-    <div className="rounded-xl border bg-background p-3">
-      <div className="flex items-center gap-2.5">
-        <Lamp state={snap ? (tripped ? "tripped" : "armed") : "idle"} />
-        <span className={cn("text-sm font-semibold", tripped ? "text-tripped" : "text-armed")}>
+    <div className="rounded-lg border bg-card p-3 shadow-xs">
+      <div className="flex items-center gap-2">
+        <Lamp
+          state={snap ? (tripped ? "tripped" : "armed") : "idle"}
+          ping={Boolean(snap)}
+          className="size-1.5"
+        />
+        <span className={cn("text-xs font-medium", tripped && "text-tripped")}>
           {snap ? (tripped ? "Tripped" : "Armed") : "Connecting…"}
         </span>
         {snap && (
-          <Badge variant="outline" className="ml-auto font-mono text-[10px] uppercase">
+          <span className="ml-auto rounded border px-1.5 py-px font-mono text-[10px] text-muted-foreground uppercase">
             {snap.mode === "live" ? snap.network : "sim"}
-          </Badge>
+          </span>
         )}
       </div>
       {snap && (
-        <div className="mt-2 space-y-0.5 text-xs text-muted-foreground">
-          <div className="truncate font-mono" title={snap.vaultId}>
-            {shortAccount(snap.vaultId)}
+        <>
+          <div className="mt-2 flex items-center gap-1">
+            <span className="truncate font-mono text-[11px]" title={snap.vaultId}>
+              {shortAccount(snap.vaultId, 26)}
+            </span>
+            <CopyButton value={snap.vaultId} className="ml-auto size-5" />
           </div>
-          <div>
-            Epoch {snap.status.epoch} ·{" "}
-            {snap.accessKeys.filter((k) => k.permission !== "FullAccess").length} live keys
+          <div className="mt-0.5 text-[11px] text-muted-foreground">
+            Epoch {snap.status.epoch} · {keys} agent keys
           </div>
-        </div>
+        </>
       )}
     </div>
   );
@@ -56,48 +83,71 @@ function VaultPill() {
 function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
-    <div className="flex h-full flex-col gap-6 p-4">
-      <Link href="/" onClick={onNavigate} className="rounded-lg px-1 py-1">
-        <Logo />
-      </Link>
-      <nav className="flex flex-col gap-1" aria-label="Main">
-        {NAV.map(({ href, label, icon: Icon }) => {
-          const active = pathname.startsWith(href);
-          return (
-            <Link
-              key={href}
-              href={href}
-              onClick={onNavigate}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                active
-                  ? "bg-foreground text-background shadow-sm"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
-              )}
-            >
-              <Icon className="size-4" />
-              {label}
-            </Link>
-          );
-        })}
-      </nav>
-      <div className="mt-auto flex flex-col gap-3">
-        <VaultPill />
-        <Separator />
+    <div className="flex h-full flex-col">
+      <div className="flex h-14 items-center border-b px-4">
+        <Link
+          href="/"
+          onClick={onNavigate}
+          className="flex items-center gap-2.5"
+          aria-label="Telltale home"
+        >
+          <LogoMark className="size-7" />
+          <Wordmark className="text-[15px]" />
+        </Link>
+      </div>
+
+      <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-3">
+        <Link
+          href="/"
+          onClick={onNavigate}
+          data-testid="back-home"
+          className="group flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" />
+          Back to home
+        </Link>
+
+        {GROUPS.map((group) => (
+          <nav key={group.label} aria-label={group.label} className="space-y-1">
+            <div className="px-2 pb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+              {group.label}
+            </div>
+            {group.items.map(({ href, label, icon: Icon }) => {
+              const active = pathname.startsWith(href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={onNavigate}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm transition-colors",
+                    active
+                      ? "bg-muted font-medium text-foreground"
+                      : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
+                  )}
+                >
+                  <Icon className="size-4" />
+                  {label}
+                </Link>
+              );
+            })}
+          </nav>
+        ))}
+      </div>
+
+      <div className="space-y-2 border-t p-3">
+        <VaultCard />
         <a
           href={REPO_URL}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <GitHubMark className="size-4" />
-          Source on GitHub
-          <ExternalLink className="ml-auto size-3.5" />
+          Source
+          <ArrowUpRight className="ml-auto size-3.5" />
         </a>
-        <p className="px-3 text-[11px] leading-relaxed text-muted-foreground">
-          Built at NEAR HACKATHON 2026 · AI Security &amp; Defense
-        </p>
       </div>
     </div>
   );
@@ -107,20 +157,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const { snap } = useVault();
-  const current = NAV.find((n) => pathname.startsWith(n.href));
+  const current = ALL.find((n) => pathname.startsWith(n.href));
   const explorer = snap ? accountLink(snap.explorerUrl, snap.vaultId) : null;
 
   return (
     <div className="min-h-dvh">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r bg-card md:block">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 border-r bg-card md:block">
         <SidebarNav />
       </aside>
-      <div className="md:pl-64">
-        <header className="sticky top-0 z-20 border-b bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-          <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 pr-[max(16px,env(safe-area-inset-right,0px))] pl-[max(16px,env(safe-area-inset-left,0px))] md:px-8">
+      <div className="md:pl-60">
+        <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-md">
+          <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 pr-[max(16px,env(safe-area-inset-right,0px))] pl-[max(16px,env(safe-area-inset-left,0px))] md:px-6">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu">
+                <Button variant="ghost" size="icon" className="-ml-2 md:hidden" aria-label="Menu">
                   <Menu className="size-5" />
                 </Button>
               </SheetTrigger>
@@ -131,52 +181,53 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <SidebarNav onNavigate={() => setOpen(false)} />
               </SheetContent>
             </Sheet>
-            <div className="flex min-w-0 items-center gap-2 text-sm">
-              <span className="hidden text-muted-foreground sm:inline">Telltale</span>
-              <span className="hidden text-muted-foreground sm:inline">/</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  asChild
+                  className="size-8 bg-card"
+                  aria-label="Back to home"
+                >
+                  <Link href="/">
+                    <ArrowLeft className="size-4" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Back to home</TooltipContent>
+            </Tooltip>
+            <nav aria-label="Breadcrumb" className="ml-1 flex min-w-0 items-center gap-1.5 text-sm">
+              <Link
+                href="/"
+                className="hidden text-muted-foreground transition-colors hover:text-foreground sm:inline"
+              >
+                Home
+              </Link>
+              <ChevronRight className="hidden size-3.5 text-muted-foreground sm:inline" />
               <span className="truncate font-medium">{current?.label ?? "Telltale"}</span>
-            </div>
+            </nav>
             <div className="ml-auto flex items-center gap-2">
-              {snap && (
-                <span className="flex items-center gap-2 rounded-full border bg-card px-2.5 py-1 text-xs font-medium md:hidden">
-                  <Lamp state={snap.status.frozen ? "tripped" : "armed"} className="size-2" />
-                  {snap.status.frozen ? "Tripped" : "Armed"}
-                </span>
-              )}
+              {snap && <StatusBadge state={snap.status.frozen ? "tripped" : "armed"} />}
               {explorer && (
-                <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="hidden bg-card sm:inline-flex"
+                >
                   <a href={explorer} target="_blank" rel="noreferrer">
-                    NearBlocks <ExternalLink className="size-3.5" />
+                    NearBlocks <ArrowUpRight className="size-3.5" />
                   </a>
                 </Button>
               )}
             </div>
           </div>
         </header>
-        <main className="mx-auto max-w-6xl pr-[max(16px,env(safe-area-inset-right,0px))] pl-[max(16px,env(safe-area-inset-left,0px))] py-8 md:px-8">
+        <main className="mx-auto max-w-6xl pt-6 pr-[max(16px,env(safe-area-inset-right,0px))] pb-12 pl-[max(16px,env(safe-area-inset-left,0px))] md:px-6">
           {children}
         </main>
       </div>
-    </div>
-  );
-}
-
-export function PageHeader({
-  title,
-  description,
-  actions,
-}: {
-  title: string;
-  description: string;
-  actions?: React.ReactNode;
-}) {
-  return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight text-balance">{title}</h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">{description}</p>
-      </div>
-      {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </div>
   );
 }

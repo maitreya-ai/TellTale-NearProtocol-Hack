@@ -16,14 +16,6 @@ const geistMono = localFont({
   weight: "100 900",
   display: "swap",
 });
-const instrumentSerif = localFont({
-  src: [
-    { path: "./fonts/instrument-serif.woff2", weight: "400", style: "normal" },
-    { path: "./fonts/instrument-serif-italic.woff2", weight: "400", style: "italic" },
-  ],
-  variable: "--font-instrument-serif",
-  display: "swap",
-});
 
 const description =
   "A NEAR vault for AI agents. Use a stolen key or hijack the agent, and the vault freezes itself and deletes every key. No human in the loop.";
@@ -56,10 +48,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${geist.variable} ${geistMono.variable} ${instrumentSerif.variable}`}
-    >
+    <html lang="en" className={`${geist.variable} ${geistMono.variable}`}>
       <body>
         <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
         <Toaster position="bottom-right" />

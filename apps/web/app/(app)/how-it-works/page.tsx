@@ -1,21 +1,18 @@
 import {
   ArrowRight,
   ArrowUpRight,
-  BadgeCheck,
+  Check,
   Bomb,
   Fingerprint,
   KeyRound,
   RotateCcw,
-  ShieldOff,
-  Wrench,
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageHeader } from "@/components/app-shell";
+import { CopyButton, PageHeader, SectionTitle } from "@/components/kit";
 import { REPO_URL } from "@/lib/site";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -95,7 +92,7 @@ export default function HowItWorks() {
     <>
       <PageHeader
         title="How it works"
-        description="Telltale turns every key an AI agent holds into a tripwire. Nothing about which keys are bait is stored on-chain, so reading the contract tells an attacker nothing."
+        description="Every key an AI agent holds is a tripwire. Nothing on-chain says which keys are bait, so reading the contract tells an attacker nothing."
         actions={
           <>
             <Button variant="outline" asChild className="bg-card">
@@ -116,125 +113,119 @@ export default function HowItWorks() {
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <ol className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border bg-border shadow-xs md:grid-cols-2 xl:grid-cols-4">
         {STEPS.map((step, i) => {
           const Icon = step.icon;
           return (
-            <Card key={step.title} className="gap-3">
-              <CardHeader className="gap-3">
-                <div className="flex items-center gap-3">
-                  <span className="grid size-9 place-items-center rounded-lg bg-foreground text-background">
-                    <Icon className="size-4" />
-                  </span>
-                  <Badge variant="outline" className="font-mono">
-                    step {i + 1}
-                  </Badge>
-                </div>
-                <CardTitle className="text-base">{step.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm leading-relaxed text-muted-foreground">
-                {step.body}
-              </CardContent>
-            </Card>
+            <li key={step.title} className="flex flex-col gap-3 bg-card p-5">
+              <div className="flex items-center justify-between">
+                <span className="grid size-8 place-items-center rounded-md border bg-muted/60">
+                  <Icon className="size-4 text-muted-foreground" />
+                </span>
+                <span className="font-mono text-xs text-muted-foreground">0{i + 1}</span>
+              </div>
+              <h2 className="text-sm font-semibold">{step.title}</h2>
+              <p className="text-[13px] leading-relaxed text-muted-foreground">{step.body}</p>
+            </li>
           );
         })}
-      </div>
+      </ol>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">The proof</CardTitle>
-            <CardDescription>
-              The exact bytes the signer signs. Rust and TypeScript build them the same way, checked
-              by shared test vectors.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <pre className="overflow-x-auto rounded-lg border bg-muted/60 p-4 font-mono text-xs leading-relaxed">
+        <Card className="gap-0 overflow-hidden py-0">
+          <div className="border-b px-5 py-3.5">
+            <SectionTitle
+              title="The proof"
+              description="The exact bytes the signer signs. Rust and TypeScript build them from shared test vectors."
+            />
+          </div>
+          <div className="relative border-b bg-muted/30">
+            <div className="flex items-center justify-between border-b px-4 py-1.5">
+              <span className="font-mono text-[11px] text-muted-foreground">proof message</span>
+              <CopyButton value={PROOF} />
+            </div>
+            <pre className="overflow-x-auto px-4 py-3 font-mono text-xs leading-relaxed">
               {PROOF}
             </pre>
-            <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-              <li>
-                A proof seen in an old transaction can&apos;t be replayed with a stolen key, because
-                the key line won&apos;t match.
-              </li>
-              <li>
-                A stale nonce with a valid signature is a plain denial, not a trip, since it can
-                happen in a real race.
-              </li>
-            </ul>
-          </CardContent>
+          </div>
+          <ul className="space-y-2 px-5 py-4 text-sm text-muted-foreground">
+            <li>
+              A proof seen in an old transaction can&apos;t be replayed with a stolen key: the key
+              line won&apos;t match.
+            </li>
+            <li>
+              A stale nonce with a valid signature is a plain denial, not a trip, since it can
+              happen in a real race.
+            </li>
+          </ul>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Why this only works on NEAR</CardTitle>
-            <CardDescription>Each piece is a protocol feature, not a convention.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
-              {WHY_NEAR.map((line) => (
-                <li key={line} className="flex gap-3 text-sm">
-                  <BadgeCheck className="mt-0.5 size-4 flex-none text-armed" />
-                  <span>{line}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
+        <Card className="gap-0 py-0">
+          <div className="border-b px-5 py-3.5">
+            <SectionTitle
+              title="Why this only works on NEAR"
+              description="Each piece is a protocol feature, not a convention."
+            />
+          </div>
+          <ul className="divide-y">
+            {WHY_NEAR.map((line) => (
+              <li key={line} className="flex gap-3 px-5 py-3 text-sm">
+                <Check className="mt-0.5 size-4 flex-none text-armed" />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
         </Card>
       </div>
 
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle className="text-base">Contract interface</CardTitle>
-          <CardDescription>telltale-vault, Rust, near-sdk 5.30.</CardDescription>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Method</TableHead>
-                <TableHead>Caller</TableHead>
-                <TableHead>Does</TableHead>
+      <SectionTitle
+        className="mt-10 mb-3"
+        title="Contract interface"
+        description="telltale-vault, Rust, near-sdk 5.30."
+      />
+      <Card className="gap-0 overflow-x-auto py-0">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="pl-5">Method</TableHead>
+              <TableHead>Caller</TableHead>
+              <TableHead className="pr-5">Does</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {METHODS.map(([method, caller, does]) => (
+              <TableRow key={method}>
+                <TableCell className="pl-5 font-mono text-xs whitespace-nowrap">{method}</TableCell>
+                <TableCell className="text-xs whitespace-nowrap text-muted-foreground">
+                  {caller}
+                </TableCell>
+                <TableCell className="min-w-64 pr-5 text-sm whitespace-normal">{does}</TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {METHODS.map(([method, caller, does]) => (
-                <TableRow key={method}>
-                  <TableCell className="font-mono text-xs whitespace-nowrap">{method}</TableCell>
-                  <TableCell className="text-xs whitespace-nowrap text-muted-foreground">
-                    {caller}
-                  </TableCell>
-                  <TableCell className="min-w-64 text-sm whitespace-normal">{does}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
+            ))}
+          </TableBody>
+        </Table>
       </Card>
 
-      <Card className="mt-6 border-dashed">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <ShieldOff className="size-4" /> What it doesn&apos;t stop
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3 text-sm text-muted-foreground md:grid-cols-3">
-          <p>
-            If the signer and its proof secret leak together, a thief can pay inside the caps.
-            That&apos;s why the caps stay, and why the signer moves into an OutLayer TEE next.
-          </p>
-          <p>
-            A thief who steals keys but never uses them trips nothing. Every canary system shares
-            this limit.
-          </p>
-          <p className="flex gap-2">
-            <Wrench className="mt-0.5 size-4 flex-none" />
-            On testnet the vault keeps its deployer key for upgrades. lock-vault removes it for real
-            use.
-          </p>
-        </CardContent>
-      </Card>
+      <SectionTitle
+        className="mt-10 mb-3"
+        title="What it doesn't stop"
+        description="Known limits, stated plainly."
+      />
+      <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border bg-border text-sm text-muted-foreground shadow-xs md:grid-cols-3">
+        <p className="bg-card p-5">
+          If the signer and its proof secret leak together, a thief can pay inside the caps.
+          That&apos;s why the caps stay, and why the signer moves into an OutLayer TEE next.
+        </p>
+        <p className="bg-card p-5">
+          A thief who steals keys but never uses them trips nothing. Every canary system shares this
+          limit.
+        </p>
+        <p className="bg-card p-5">
+          On testnet the vault keeps its deployer key for upgrades.{" "}
+          <code className="font-mono text-xs text-foreground">lock-vault</code> removes it for real
+          use.
+        </p>
+      </div>
     </>
   );
 }

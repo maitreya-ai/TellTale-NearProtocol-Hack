@@ -6,7 +6,7 @@ async function openLab(page: Page) {
   const rearm = page.getByTestId("rearm");
   if (await rearm.isEnabled()) {
     await rearm.click();
-    await expect(page.getByTestId("lab-state")).toHaveText("ARMED");
+    await expect(page.getByTestId("lab-state")).toHaveText("Armed");
   }
 }
 
@@ -15,7 +15,7 @@ test.describe("Telltale (simulation)", () => {
     await openLab(page);
     await page.goto("/dashboard");
     await expect(page.getByTestId("sim-banner")).toBeVisible();
-    await expect(page.getByTestId("state-word")).toHaveText("ARMED");
+    await expect(page.getByTestId("state-word")).toHaveText("Armed");
     await expect(page.getByTestId("key-count")).toHaveText("4");
     await expect(page.getByTestId("keys").getByText("pay only")).toHaveCount(4);
   });
@@ -26,10 +26,10 @@ test.describe("Telltale (simulation)", () => {
     const terminal = page.getByTestId("terminal");
     await expect(terminal).toContainText("TRIPPED: key used without a signer proof");
     await expect(terminal).toContainText("access key does not exist");
-    await expect(page.getByTestId("lab-state")).toHaveText("TRIPPED");
+    await expect(page.getByTestId("lab-state")).toHaveText("Tripped");
 
     await page.goto("/dashboard");
-    await expect(page.getByTestId("state-word")).toHaveText("TRIPPED");
+    await expect(page.getByTestId("state-word")).toHaveText("Tripped");
     await expect(page.getByTestId("key-count")).toHaveText("0");
     await expect(page.getByTestId("trips")).toContainText("Stolen key used without a proof");
   });
@@ -42,9 +42,9 @@ test.describe("Telltale (simulation)", () => {
     await expect(page.getByTestId("terminal")).toContainText(
       "Decoy tool called: raise_spending_limit",
     );
-    await expect(page.getByTestId("lab-state")).toHaveText("TRIPPED");
+    await expect(page.getByTestId("lab-state")).toHaveText("Tripped");
     await page.getByTestId("rearm").click();
-    await expect(page.getByTestId("lab-state")).toHaveText("ARMED");
+    await expect(page.getByTestId("lab-state")).toHaveText("Armed");
 
     await page.goto("/dashboard");
     await expect(page.getByTestId("key-count")).toHaveText("4");
@@ -57,7 +57,7 @@ test.describe("Telltale (simulation)", () => {
     await expect(page.getByTestId("terminal")).toContainText(
       "Done. Vault still armed. 2 payments made.",
     );
-    await expect(page.getByTestId("lab-state")).toHaveText("ARMED");
+    await expect(page.getByTestId("lab-state")).toHaveText("Armed");
   });
 
   test("how it works explains the proof", async ({ page }) => {

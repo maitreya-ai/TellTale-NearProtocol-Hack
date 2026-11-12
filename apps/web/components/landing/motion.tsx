@@ -12,7 +12,7 @@ export const EASE = [0.22, 1, 0.36, 1] as const;
 export function SmoothScroll() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const lenis = new Lenis({ lerp: 0.09, anchors: { offset: -84 }, autoRaf: true });
+    const lenis = new Lenis({ lerp: 0.1, anchors: { offset: -56 }, autoRaf: true });
     return () => lenis.destroy();
   }, []);
   return null;
@@ -23,7 +23,7 @@ export function Reveal({
   children,
   className,
   delay = 0,
-  y = 22,
+  y = 16,
 }: {
   children: ReactNode;
   className?: string;
@@ -33,62 +33,78 @@ export function Reveal({
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y, filter: "blur(6px)" }}
-      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-      transition={{ duration: 0.9, ease: EASE, delay }}
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "0px 0px -8% 0px" }}
+      transition={{ duration: 0.7, ease: EASE, delay }}
     >
       {children}
     </motion.div>
   );
 }
 
-/**
- * Slides a word up from behind a mask. Plays on mount, or on first view with `inView`.
- * The padding keeps italic overhangs and descenders from being clipped.
- */
-export function Mask({
-  children,
-  delay = 0,
-  inView = false,
-  className,
-}: {
-  children: ReactNode;
-  delay?: number;
-  inView?: boolean;
-  className?: string;
-}) {
-  const shown = { y: "0%" };
+/** Small "+" marks where section rules meet the frame, desktop only. */
+export function Corners() {
+  const mark = "pointer-events-none absolute z-10 hidden size-[9px] text-zinc-300 xl:block";
   return (
-    <span
-      className={cn(
-        "-mx-[0.06em] -mb-[0.14em] inline-block overflow-hidden px-[0.06em] pb-[0.14em] align-bottom",
-        className,
-      )}
-    >
-      <motion.span
-        className="inline-block will-change-transform"
-        initial={{ y: "112%" }}
-        {...(inView
-          ? { whileInView: shown, viewport: { once: true, margin: "0px 0px -8% 0px" } }
-          : { animate: shown })}
-        transition={{ duration: 1.05, ease: EASE, delay }}
-      >
-        {children}
-      </motion.span>
-    </span>
+    <>
+      <svg viewBox="0 0 9 9" aria-hidden="true" className={cn(mark, "-top-[5px] -left-[5px]")}>
+        <path d="M4.5 0v9M0 4.5h9" stroke="currentColor" />
+      </svg>
+      <svg viewBox="0 0 9 9" aria-hidden="true" className={cn(mark, "-top-[5px] -right-[5px]")}>
+        <path d="M4.5 0v9M0 4.5h9" stroke="currentColor" />
+      </svg>
+    </>
   );
 }
 
-export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
+/** A full-width section inside the page frame, separated by a hairline. */
+export function Section({
+  id,
+  children,
+  className,
+  label,
+}: {
+  id?: string;
+  children: ReactNode;
+  className?: string;
+  label?: string;
+}) {
   return (
-    <p
-      className={cn(
-        "font-mono text-[11px] font-medium tracking-[0.2em] text-muted-foreground uppercase",
-        className,
-      )}
-    >
+    <section id={id} aria-label={label} className={cn("relative border-t", className)}>
+      <Corners />
       {children}
-    </p>
+    </section>
+  );
+}
+
+export function SectionHeader({
+  eyebrow,
+  title,
+  description,
+}: {
+  eyebrow: string;
+  title: ReactNode;
+  description?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-4 px-5 py-10 sm:px-8 md:flex-row md:items-end md:justify-between md:py-12">
+      <Reveal className="max-w-xl">
+        <p className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+          <span className="size-1.5 rounded-full bg-brand" />
+          {eyebrow}
+        </p>
+        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+          {title}
+        </h2>
+      </Reveal>
+      {description && (
+        <Reveal delay={0.08} className="max-w-sm">
+          <p className="text-[15px] leading-relaxed text-pretty text-muted-foreground">
+            {description}
+          </p>
+        </Reveal>
+      )}
+    </div>
   );
 }

@@ -4,7 +4,7 @@
 
 Built at NEAR HACKATHON 2026 for **AI Security & Defense** (`security`) and **Agent Economy** (`agents`).
 
-- Live demo: _added after deploy_ · Demo video: _added after recording_
+- **Live demo: https://telltale.maitreyak1806.workers.dev** (vault [`vault.telltale.testnet`](https://testnet.nearblocks.io/address/vault.telltale.testnet) on NEAR testnet) · Demo video: _added after recording_
 - Web app: landing page at `/`, then **Overview** (`/dashboard`), **Attack lab** (`/lab`) and **How it works** (`/how-it-works`). Next.js 16 on Cloudflare Workers.
 - Design docs: [docs/project-overview.md](docs/project-overview.md), [docs/architecture.md](docs/architecture.md)
 
@@ -168,7 +168,7 @@ Husky runs lint-staged on commit (Prettier, ESLint, `cargo fmt --check`). On pus
 ## Hackathon disclosure
 
 - All code was written during NEAR HACKATHON 2026 (from 11 Nov 2026). No earlier codebase.
-- Libraries: near-sdk, near-api-js, @noble/curves and @noble/hashes, openai (NEAR AI Cloud client), @modelcontextprotocol/sdk, React, Next.js, OpenNext for Cloudflare, Wrangler, Tailwind CSS, shadcn/ui, Motion, Lenis, Jest, Playwright. Fonts: Geist and Instrument Serif (SIL OFL, self-hosted). The web app started from `create-vinext-app` and moved to Next.js + OpenNext on 12 Nov.
+- Libraries: near-sdk, near-api-js, @noble/curves and @noble/hashes, openai (NEAR AI Cloud client), @modelcontextprotocol/sdk, React, Next.js, OpenNext for Cloudflare, Wrangler, Tailwind CSS, shadcn/ui, Motion, Lenis, Jest, Playwright. Fonts: Geist and Geist Mono (SIL OFL, self-hosted). The web app started from `create-vinext-app` and moved to Next.js + OpenNext on 12 Nov.
 - Built with AI assistance (Claude Code).
 
 ## License

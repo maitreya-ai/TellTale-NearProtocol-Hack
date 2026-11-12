@@ -1,22 +1,20 @@
 "use client";
 
 import {
-  ArrowRight,
-  Ban,
+  ArrowUpRight,
   CircleCheck,
   FlaskConical,
   KeyRound,
+  Landmark,
+  ReceiptText,
+  RotateCcw,
   ShieldAlert,
-  ShieldCheck,
-  Siren,
-  Wallet,
+  TriangleAlert,
 } from "lucide-react";
 import Link from "next/link";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -26,317 +24,282 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 import type { VaultSnapshot } from "@/lib/types";
-import { PageHeader } from "./app-shell";
-import { Lamp } from "./brand";
-import { ago, CAUSE_LABEL, near, pct, shortKey } from "./format";
+import { StatusBadge } from "./brand";
+import { accountLink, ago, CAUSE_LABEL, near, pct, shortKey } from "./format";
+import { CopyButton, EmptyState, PageHeader, SectionTitle, Stat, StatGroup } from "./kit";
 import { useVault } from "./vault-provider";
 
-function StatusHero({ snap }: { snap: VaultSnapshot | null }) {
-  const tripped = snap?.status.frozen ?? false;
-  const lastTrip = snap?.trips[0];
+function TrippedBanner({ snap }: { snap: VaultSnapshot }) {
+  const trip = snap.trips[0];
   return (
-    <Card
-      data-testid="status-plate"
-      className={cn(
-        "relative overflow-hidden",
-        tripped ? "border-tripped/40" : snap ? "border-armed/30" : "",
-      )}
-    >
-      <div
-        className={cn(
-          "hero-grid pointer-events-none absolute inset-0",
-          tripped ? "bg-tripped-soft/60" : "bg-armed-soft/40",
-        )}
-        aria-hidden="true"
-      />
-      <CardContent className="relative flex flex-col gap-6 sm:flex-row sm:items-center">
-        <Lamp
-          state={snap ? (tripped ? "tripped" : "armed") : "idle"}
-          className="size-10 sm:size-14"
-        />
-        <div className="min-w-0 flex-1 space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
-              Vault state
-            </span>
-            {snap && (
-              <Badge variant="outline" className="bg-card font-mono">
-                epoch {snap.status.epoch}
-              </Badge>
-            )}
-          </div>
-          <div
-            data-testid="state-word"
-            className={cn(
-              "text-4xl font-semibold tracking-tight sm:text-5xl",
-              tripped ? "text-tripped" : "text-armed",
-              !snap && "text-muted-foreground",
-            )}
-          >
-            {snap ? (tripped ? "TRIPPED" : "ARMED") : "…"}
-          </div>
-          <p className="max-w-xl text-sm text-muted-foreground">
-            {tripped && lastTrip
-              ? `${CAUSE_LABEL[lastTrip.cause] ?? lastTrip.cause}. Payments are frozen and ${lastTrip.keysDeleted} agent keys were deleted ${ago(lastTrip.at)}. The owner re-arms with fresh keys.`
-              : "Every agent key is a tripwire. A payment without a signer proof, or a call to a decoy tool, freezes the vault and deletes every agent key."}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2 sm:flex-col">
-          <Button asChild>
-            <Link href="/lab">
-              <FlaskConical className="size-4" />
-              {tripped ? "Re-arm in the lab" : "Run an attack"}
-            </Link>
-          </Button>
-          <Button variant="outline" asChild className="bg-card">
-            <Link href="/how-it-works">
-              How it works <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function Stat({
-  icon: Icon,
-  label,
-  value,
-  hint,
-  progress,
-  tone,
-  testId,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: React.ReactNode;
-  hint: string;
-  progress?: number;
-  tone?: "armed" | "tripped" | "warn";
-  testId?: string;
-}) {
-  return (
-    <Card className="gap-3 py-5">
-      <CardHeader className="flex flex-row items-center justify-between gap-2 px-5">
-        <CardDescription className="text-xs font-medium">{label}</CardDescription>
-        <Icon className="size-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent className="space-y-2 px-5">
-        <div
-          data-testid={testId}
-          className={cn(
-            "font-mono text-2xl font-medium tabular-nums",
-            tone === "tripped" && "text-tripped",
-            tone === "armed" && "text-armed",
-          )}
-        >
-          {value}
-        </div>
-        {progress !== undefined && (
-          <Progress
-            value={progress}
-            className={cn("h-1.5", progress >= 100 && "[&>div]:bg-tripped")}
-          />
-        )}
-        <p className="text-xs text-muted-foreground">{hint}</p>
-      </CardContent>
-    </Card>
-  );
-}
-
-function Stats({ snap }: { snap: VaultSnapshot }) {
-  const agentKeys = snap.accessKeys.filter((k) => k.permission !== "FullAccess").length;
-  const { status, config } = snap;
-  return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <Stat
-        icon={KeyRound}
-        label="Live agent keys"
-        value={agentKeys}
-        tone={agentKeys ? "armed" : "tripped"}
-        hint={agentKeys ? "Each may only call pay on the vault" : "Deleted by the last trip"}
-        testId="key-count"
-      />
-      <Stat
-        icon={Wallet}
-        label="Available"
-        value={
-          <>
-            {near(status.available)}
-            <span className="ml-1.5 font-sans text-sm font-normal text-muted-foreground">NEAR</span>
-          </>
-        }
-        hint={`Per-payment cap ${near(config.policy.per_payment_cap)} NEAR`}
-      />
-      <Stat
-        icon={ShieldCheck}
-        label="Spent today"
-        value={`${near(status.spent_in_window)} / ${near(config.policy.daily_cap)}`}
-        progress={pct(status.spent_in_window, config.policy.daily_cap)}
-        hint="Rolling 24-hour window, NEAR"
-      />
-      <Stat
-        icon={Ban}
-        label="Strikes"
-        value={`${status.strikes} / ${config.policy.max_strikes}`}
-        progress={
-          config.policy.max_strikes ? (status.strikes / config.policy.max_strikes) * 100 : 0
-        }
-        hint="Denied payments before an automatic trip"
-      />
+    <div className="flex flex-col gap-3 border-b border-tripped/20 bg-tripped-soft px-5 py-3 sm:flex-row sm:items-center">
+      <ShieldAlert className="hidden size-4 flex-none text-tripped sm:block" />
+      <div className="min-w-0 flex-1 text-sm">
+        <span className="font-medium text-tripped">Tripped{trip ? ` ${ago(trip.at)}` : ""}.</span>{" "}
+        <span className="text-foreground/80">
+          {trip ? `${CAUSE_LABEL[trip.cause] ?? trip.cause}. ` : ""}
+          Payments are frozen and {trip ? trip.keysDeleted : "all"} agent keys were deleted.
+        </span>
+      </div>
+      <Button size="sm" asChild>
+        <Link href="/lab">
+          <RotateCcw className="size-3.5" /> Re-arm in the lab
+        </Link>
+      </Button>
     </div>
   );
 }
 
-function KeysCard({ snap }: { snap: VaultSnapshot }) {
+function VaultCard({ snap }: { snap: VaultSnapshot }) {
+  const { status, config } = snap;
+  const tripped = status.frozen;
+  const agentKeys = snap.accessKeys.filter((k) => k.permission !== "FullAccess").length;
+  const explorer = accountLink(snap.explorerUrl, snap.vaultId);
+  const strikesPct = config.policy.max_strikes
+    ? (status.strikes / config.policy.max_strikes) * 100
+    : 0;
+
+  return (
+    <Card data-testid="status-plate" className="gap-0 overflow-hidden py-0">
+      {tripped && <TrippedBanner snap={snap} />}
+      <div className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center">
+        <span className="grid size-10 flex-none place-items-center rounded-lg border bg-muted/60">
+          <Landmark className="size-[18px] text-muted-foreground" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 items-center gap-1">
+            <span className="truncate font-mono text-sm font-medium">{snap.vaultId}</span>
+            <CopyButton value={snap.vaultId} />
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <StatusBadge state={tripped ? "tripped" : "armed"} testId="state-word" />
+            <Badge variant="outline" className="h-6 rounded-md font-mono font-normal">
+              {snap.mode === "live" ? snap.network : "simulation"}
+            </Badge>
+            <Badge variant="outline" className="h-6 rounded-md font-mono font-normal">
+              epoch {status.epoch}
+            </Badge>
+            <span className="hidden sm:inline">
+              Owner <span className="font-mono text-foreground">{config.owner_id}</span>
+            </span>
+          </div>
+        </div>
+        {explorer && snap.mode === "live" && (
+          <Button variant="outline" size="sm" asChild>
+            <a href={explorer} target="_blank" rel="noreferrer">
+              View on NearBlocks <ArrowUpRight className="size-3.5" />
+            </a>
+          </Button>
+        )}
+      </div>
+      <StatGroup className="border-t">
+        <Stat
+          label="Agent keys"
+          value={agentKeys}
+          tone={agentKeys ? undefined : "tripped"}
+          hint={agentKeys ? "Pay-only function-call keys" : "Deleted by the last trip"}
+          testId="key-count"
+        />
+        <Stat
+          label="Available"
+          value={near(status.available)}
+          unit="NEAR"
+          hint={`Cap ${near(config.policy.per_payment_cap)} NEAR per payment`}
+        />
+        <Stat
+          label="Spent today"
+          value={near(status.spent_in_window)}
+          unit={`/ ${near(config.policy.daily_cap)} NEAR`}
+          progress={pct(status.spent_in_window, config.policy.daily_cap)}
+        />
+        <Stat
+          label="Strikes"
+          value={status.strikes}
+          unit={`/ ${config.policy.max_strikes}`}
+          progress={strikesPct}
+        />
+      </StatGroup>
+    </Card>
+  );
+}
+
+function KeysTable({ snap }: { snap: VaultSnapshot }) {
   const agentKeys = snap.accessKeys.filter((k) => k.permission !== "FullAccess");
   const fullKeys = snap.accessKeys.filter((k) => k.permission === "FullAccess");
-  const lastTrip = snap.trips[0];
+  const trip = snap.trips[0];
+  if (agentKeys.length === 0)
+    return (
+      <EmptyState
+        className="m-4"
+        icon={<KeyRound className="size-4" />}
+        title="No agent keys on the vault"
+        description={`${trip ? `Trip #${trip.index + 1} deleted ${trip.keysDeleted} keys. ` : ""}A stolen key can no longer sign anything.`}
+        action={
+          <Button size="sm" variant="outline" asChild>
+            <Link href="/lab">Re-arm with fresh keys</Link>
+          </Button>
+        }
+      />
+    );
   return (
-    <Card className="lg:col-span-3">
-      <CardHeader>
-        <CardTitle className="text-base">Keys on the vault account</CardTitle>
-        <CardDescription>
-          Read live from the chain. Copies of some agent keys are planted as bait.
-        </CardDescription>
-      </CardHeader>
-      <CardContent data-testid="keys">
-        {agentKeys.length === 0 ? (
-          <div className="flex items-start gap-3 rounded-lg border border-dashed border-tripped/40 bg-tripped-soft p-4 text-sm">
-            <Siren className="mt-0.5 size-4 text-tripped" />
-            <div>
-              <div className="font-medium">No agent keys on the vault</div>
-              <div className="text-muted-foreground">
-                {lastTrip
-                  ? `Trip #${lastTrip.index + 1} deleted ${lastTrip.keysDeleted} keys. `
-                  : ""}
-                A stolen key can no longer sign anything.
-              </div>
-            </div>
+    <>
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="pl-5">Public key</TableHead>
+            <TableHead>Permission</TableHead>
+            <TableHead className="pr-5 text-right">Nonce</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {agentKeys.map((k) => (
+            <TableRow key={k.public_key}>
+              <TableCell className="pl-5">
+                <div className="flex items-center gap-1">
+                  <Tooltip>
+                    <TooltipTrigger className="cursor-default font-mono text-xs">
+                      {shortKey(k.public_key)}
+                    </TooltipTrigger>
+                    <TooltipContent className="font-mono">{k.public_key}</TooltipContent>
+                  </Tooltip>
+                  <CopyButton value={k.public_key} />
+                </div>
+              </TableCell>
+              <TableCell>
+                <Badge variant="secondary" className="rounded-md font-mono text-[11px] font-normal">
+                  pay only
+                </Badge>
+              </TableCell>
+              <TableCell className="pr-5 text-right font-mono text-xs text-muted-foreground tabular-nums">
+                {k.nonce.length > 8 ? `…${k.nonce.slice(-6)}` : k.nonce}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <p className="border-t px-5 py-3 text-xs text-muted-foreground">
+        Copies of some of these keys sit in bait files.
+        {fullKeys.length > 0 &&
+          ` Plus ${fullKeys.length} deployer full-access key (testnet only, removed by lock-vault).`}
+      </p>
+    </>
+  );
+}
+
+function PaymentsTable({ snap }: { snap: VaultSnapshot }) {
+  if (snap.payments.length === 0)
+    return (
+      <EmptyState
+        className="m-4"
+        icon={<ReceiptText className="size-4" />}
+        title="No payments yet"
+        description="Only payments with a valid signer proof land here. Run the honest scenario to make some."
+      />
+    );
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow className="hover:bg-transparent">
+          <TableHead className="pl-5">To</TableHead>
+          <TableHead>Memo</TableHead>
+          <TableHead>Epoch</TableHead>
+          <TableHead className="pr-5 text-right">Amount</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {snap.payments.slice(0, 12).map((p) => (
+          <TableRow key={p.index}>
+            <TableCell className="pl-5 font-mono text-xs">{p.receiverId}</TableCell>
+            <TableCell className="max-w-48 truncate text-xs text-muted-foreground">
+              {p.memo ?? "—"}
+            </TableCell>
+            <TableCell className="font-mono text-xs text-muted-foreground">{p.epoch}</TableCell>
+            <TableCell className="pr-5 text-right font-mono text-xs tabular-nums">
+              {near(p.amount, 4)} NEAR
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+
+function TripLog({ snap }: { snap: VaultSnapshot }) {
+  return (
+    <Card className="gap-0 py-0">
+      <div className="border-b px-5 py-3.5">
+        <SectionTitle title="Trip log" description="Every time the alarm went off." />
+      </div>
+      <div data-testid="trips" className="max-h-[22rem] overflow-y-auto px-5 py-4">
+        {snap.trips.length === 0 ? (
+          <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+            <CircleCheck className="size-4 text-armed" />
+            No trips yet.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Public key</TableHead>
-                  <TableHead>Permission</TableHead>
-                  <TableHead className="text-right">Nonce</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {agentKeys.map((k) => (
-                  <TableRow key={k.public_key}>
-                    <TableCell className="font-mono text-xs">
-                      <Tooltip>
-                        <TooltipTrigger className="cursor-default">
-                          {shortKey(k.public_key)}
-                        </TooltipTrigger>
-                        <TooltipContent className="font-mono">{k.public_key}</TooltipContent>
-                      </Tooltip>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="font-mono text-[11px]">
-                        pay only
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-xs text-muted-foreground">
-                      {k.nonce.length > 8 ? `…${k.nonce.slice(-6)}` : k.nonce}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <ol className="relative space-y-5 border-l pl-5">
+            {snap.trips.map((t) => (
+              <li key={`${t.index}-${t.at}`} className="relative">
+                <span className="absolute top-1 -left-[25px] grid size-[9px] place-items-center rounded-full bg-tripped ring-4 ring-card" />
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-sm font-medium">{CAUSE_LABEL[t.cause] ?? t.cause}</span>
+                  <span className="flex-none text-xs text-muted-foreground">{ago(t.at)}</span>
+                </div>
+                <p className="mt-1 line-clamp-2 font-mono text-[11px] break-all text-muted-foreground">
+                  {t.detail}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  #{t.index + 1} · {t.keysDeleted} keys deleted · epoch {t.epoch}
+                  {t.blockHeight ? ` · block ${t.blockHeight}` : ""}
+                </p>
+              </li>
+            ))}
+          </ol>
         )}
-        {fullKeys.length > 0 && (
-          <p className="mt-3 text-xs text-muted-foreground">
-            Plus {fullKeys.length} deployer full-access key (testnet only, removed by{" "}
-            <code className="font-mono">lock-vault</code>).
-          </p>
-        )}
-      </CardContent>
+      </div>
     </Card>
   );
 }
 
-function TripsCard({ snap }: { snap: VaultSnapshot }) {
+function PolicyCard({ snap }: { snap: VaultSnapshot }) {
+  const { policy, signer_pk, reporters } = snap.config;
+  const rows: [string, React.ReactNode][] = [
+    ["Per payment", `${near(policy.per_payment_cap)} NEAR`],
+    ["Daily cap", `${near(policy.daily_cap)} NEAR`],
+    ["Auto-trip after", `${policy.max_strikes} denied payments`],
+    [
+      "Allowlist",
+      policy.allowlist?.length ? (
+        <span className="flex flex-col items-end gap-0.5">
+          {policy.allowlist.map((a) => (
+            <span key={a} className="font-mono text-[11px]">
+              {a}
+            </span>
+          ))}
+        </span>
+      ) : (
+        "Any account"
+      ),
+    ],
+    ["Signer key", <span className="font-mono text-[11px]">{shortKey(signer_pk)}</span>],
+    ["Reporters", reporters.length || "None"],
+  ];
   return (
-    <Card className="lg:col-span-2">
-      <CardHeader>
-        <CardTitle className="text-base">Trip log</CardTitle>
-        <CardDescription>Every time the alarm went off.</CardDescription>
-      </CardHeader>
-      <CardContent data-testid="trips" className="max-h-80 space-y-4 overflow-y-auto">
-        {snap.trips.length === 0 && (
-          <div className="flex items-center gap-3 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-            <CircleCheck className="size-4 text-armed" />
-            No trips yet. Run an attack in the lab.
-          </div>
-        )}
-        {snap.trips.map((t) => (
-          <div key={`${t.index}-${t.at}`} className="relative border-l-2 border-tripped/60 pl-4">
-            <div className="flex items-center gap-2">
-              <ShieldAlert className="size-3.5 text-tripped" />
-              <span className="text-sm font-medium">
-                #{t.index + 1} · {CAUSE_LABEL[t.cause] ?? t.cause}
-              </span>
-            </div>
-            <p className="mt-1 font-mono text-xs break-all text-muted-foreground">{t.detail}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t.keysDeleted} keys deleted · epoch {t.epoch} · {ago(t.at)}
-              {t.blockHeight ? ` · block ${t.blockHeight}` : ""}
-            </p>
+    <Card className="gap-0 py-0">
+      <div className="border-b px-5 py-3.5">
+        <SectionTitle title="Policy" description="Enforced by the contract on every pay call." />
+      </div>
+      <dl className="divide-y px-5 text-sm">
+        {rows.map(([k, v]) => (
+          <div key={k} className="flex items-start justify-between gap-4 py-2.5">
+            <dt className="text-muted-foreground">{k}</dt>
+            <dd className="min-w-0 text-right">{v}</dd>
           </div>
         ))}
-      </CardContent>
-    </Card>
-  );
-}
-
-function PaymentsCard({ snap }: { snap: VaultSnapshot }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Payments</CardTitle>
-        <CardDescription>Only payments with a valid signer proof reach this list.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {snap.payments.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No payments yet.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>#</TableHead>
-                  <TableHead>To</TableHead>
-                  <TableHead>Memo</TableHead>
-                  <TableHead>Epoch</TableHead>
-                  <TableHead className="text-right">NEAR</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {snap.payments.slice(0, 12).map((p) => (
-                  <TableRow key={p.index}>
-                    <TableCell className="font-mono text-xs">{p.index + 1}</TableCell>
-                    <TableCell className="font-mono text-xs">{p.receiverId}</TableCell>
-                    <TableCell className="text-xs">{p.memo ?? "—"}</TableCell>
-                    <TableCell className="font-mono text-xs">{p.epoch}</TableCell>
-                    <TableCell className="text-right font-mono text-xs">
-                      {near(p.amount, 4)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </CardContent>
+      </dl>
     </Card>
   );
 }
@@ -346,21 +309,30 @@ export function Notices() {
   return (
     <>
       {snap?.mode === "simulation" && (
-        <Alert data-testid="sim-banner" className="mb-6 border-brand/40 bg-brand-soft">
-          <FlaskConical className="size-4" />
-          <AlertTitle>Simulation mode</AlertTitle>
-          <AlertDescription>
-            The vault runs in memory with the contract&apos;s rules and real ed25519 proofs. Set
-            TELLTALE_MOCK=0 and the testnet variables to use the deployed contract.
-          </AlertDescription>
-        </Alert>
+        <div
+          data-testid="sim-banner"
+          className="mb-6 flex items-start gap-3 rounded-lg border bg-card px-3.5 py-2.5 text-sm shadow-xs sm:items-center"
+        >
+          <span className="flex-none rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-800">
+            Simulation
+          </span>
+          <span className="text-muted-foreground">
+            In-memory vault with the contract&apos;s rules and real ed25519 proofs. Add testnet
+            credentials to use the deployed contract.
+          </span>
+        </div>
       )}
       {error && (
-        <Alert variant="destructive" className="mb-6" role="alert">
-          <Siren className="size-4" />
-          <AlertTitle>Can&apos;t reach the vault</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <div
+          role="alert"
+          className="mb-6 flex items-start gap-3 rounded-lg border border-tripped/25 bg-tripped-soft px-3.5 py-2.5 text-sm"
+        >
+          <TriangleAlert className="mt-0.5 size-4 flex-none text-tripped" />
+          <span>
+            <span className="font-medium">Can&apos;t reach the vault.</span>{" "}
+            <span className="text-muted-foreground">{error}</span>
+          </span>
+        </div>
       )}
     </>
   );
@@ -372,28 +344,67 @@ export default function Overview() {
     <>
       <PageHeader
         title="Overview"
-        description="Live state of the AI agent's vault. Keys, trips and payments come straight from the contract."
+        description="Live state of the agent's vault, read from the contract every few seconds."
+        actions={
+          <>
+            <Button variant="outline" asChild className="bg-card">
+              <Link href="/how-it-works">How it works</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/lab">
+                <FlaskConical className="size-4" /> Run an attack
+              </Link>
+            </Button>
+          </>
+        }
       />
       <Notices />
-      <div className="flex flex-col gap-6">
-        <StatusHero snap={snap} />
-        {snap ? (
-          <>
-            <Stats snap={snap} />
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
-              <KeysCard snap={snap} />
-              <TripsCard snap={snap} />
+      {snap ? (
+        <div className="space-y-6">
+          <VaultCard snap={snap} />
+          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+            <Card className="min-w-0 gap-0 py-0">
+              <Tabs defaultValue="keys" className="gap-0">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-3">
+                  <TabsList>
+                    <TabsTrigger value="keys">
+                      Keys
+                      <span className="rounded bg-muted px-1 font-mono text-[10px] text-muted-foreground tabular-nums group-data-[state=active]:bg-secondary">
+                        {snap.accessKeys.filter((k) => k.permission !== "FullAccess").length}
+                      </span>
+                    </TabsTrigger>
+                    <TabsTrigger value="payments">
+                      Payments
+                      <span className="rounded bg-muted px-1 font-mono text-[10px] text-muted-foreground tabular-nums">
+                        {snap.payments.length}
+                      </span>
+                    </TabsTrigger>
+                  </TabsList>
+                  <span className="text-xs text-muted-foreground">Read live from the chain</span>
+                </div>
+                <TabsContent value="keys" data-testid="keys" className="overflow-x-auto">
+                  <KeysTable snap={snap} />
+                </TabsContent>
+                <TabsContent value="payments" className="overflow-x-auto">
+                  <PaymentsTable snap={snap} />
+                </TabsContent>
+              </Tabs>
+            </Card>
+            <div className="space-y-6">
+              <TripLog snap={snap} />
+              <PolicyCard snap={snap} />
             </div>
-            <PaymentsCard snap={snap} />
-          </>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[0, 1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-32 rounded-xl" />
-            ))}
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <Skeleton className="h-[184px] rounded-xl" />
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+            <Skeleton className="h-72 rounded-xl" />
+            <Skeleton className="h-72 rounded-xl" />
+          </div>
+        </div>
+      )}
     </>
   );
 }

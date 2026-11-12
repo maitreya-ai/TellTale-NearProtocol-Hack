@@ -2,17 +2,52 @@ import { cn } from "@/lib/utils";
 
 export type LampState = "armed" | "tripped" | "idle";
 
-export function Lamp({ state, className }: { state: LampState; className?: string }) {
+/** Flat status dot. `ping` adds a slow pulse for live state. */
+export function Lamp({
+  state,
+  className,
+  ping = false,
+}: {
+  state: LampState;
+  className?: string;
+  ping?: boolean;
+}) {
   return (
     <span
       role="img"
       aria-label={state}
+      data-state={state}
+      className={cn("status-dot size-2", ping && "status-ping", className)}
+    />
+  );
+}
+
+/** "● Armed" / "● Tripped" pill used across the app. */
+export function StatusBadge({
+  state,
+  className,
+  testId,
+  children,
+}: {
+  state: LampState;
+  className?: string;
+  testId?: string;
+  children?: React.ReactNode;
+}) {
+  const label = state === "armed" ? "Armed" : state === "tripped" ? "Tripped" : "Connecting";
+  return (
+    <span
       className={cn(
-        "lamp size-3",
-        state === "armed" ? "lamp-armed" : state === "tripped" ? "lamp-tripped" : "lamp-idle",
+        "inline-flex h-6 items-center gap-2 rounded-md border px-2 text-xs font-medium",
+        state === "tripped"
+          ? "border-tripped/25 bg-tripped-soft text-tripped"
+          : "border-border bg-card text-foreground",
         className,
       )}
-    />
+    >
+      <Lamp state={state} ping={state !== "idle"} className="size-1.5" />
+      <span data-testid={testId}>{children ?? label}</span>
+    </span>
   );
 }
 
