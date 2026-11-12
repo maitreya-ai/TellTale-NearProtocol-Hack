@@ -44,7 +44,7 @@ The 2026 losses came from compromised agents, not broken limits:
 - Signer and reporter services. The signer derives each epoch's agent keys from one seed, so it needs no storage.
 - A demo agent on NEAR AI Cloud with real tools, decoy tools and three scenarios: honest run, stolen `.env`, poisoned invoice.
 - Attack scripts that act like a stealer skill and a drainer.
-- A dashboard on Cloudflare Workers (vinext + Wrangler) showing vault state, live keys, payments and trips, plus a red-team console that runs the scenarios with a live log.
+- A landing page and dashboard on Cloudflare Workers (Next.js + OpenNext + Wrangler) showing vault state, live keys, payments and trips, plus a red-team console that runs the scenarios with a live log.
 - An MCP server that gives any MCP client (Claude Desktop, IronClaw) the decoy tools.
 
 **Stretch:**

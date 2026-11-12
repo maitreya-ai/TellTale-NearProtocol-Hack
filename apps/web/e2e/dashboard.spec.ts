@@ -13,7 +13,7 @@ async function openLab(page: Page) {
 test.describe("Telltale (simulation)", () => {
   test("overview shows an armed vault with four pay-only agent keys", async ({ page }) => {
     await openLab(page);
-    await page.goto("/");
+    await page.goto("/dashboard");
     await expect(page.getByTestId("sim-banner")).toBeVisible();
     await expect(page.getByTestId("state-word")).toHaveText("ARMED");
     await expect(page.getByTestId("key-count")).toHaveText("4");
@@ -28,7 +28,7 @@ test.describe("Telltale (simulation)", () => {
     await expect(terminal).toContainText("access key does not exist");
     await expect(page.getByTestId("lab-state")).toHaveText("TRIPPED");
 
-    await page.goto("/");
+    await page.goto("/dashboard");
     await expect(page.getByTestId("state-word")).toHaveText("TRIPPED");
     await expect(page.getByTestId("key-count")).toHaveText("0");
     await expect(page.getByTestId("trips")).toContainText("Stolen key used without a proof");
@@ -46,7 +46,7 @@ test.describe("Telltale (simulation)", () => {
     await page.getByTestId("rearm").click();
     await expect(page.getByTestId("lab-state")).toHaveText("ARMED");
 
-    await page.goto("/");
+    await page.goto("/dashboard");
     await expect(page.getByTestId("key-count")).toHaveText("4");
     await expect(page.getByTestId("trips")).toContainText("Agent called a decoy tool");
   });
@@ -66,7 +66,7 @@ test.describe("Telltale (simulation)", () => {
     await expect(page.getByText("telltale-pay-v1", { exact: false })).toBeVisible();
   });
 
-  for (const path of ["/", "/lab", "/how-it-works"]) {
+  for (const path of ["/", "/dashboard", "/lab", "/how-it-works"]) {
     test(`${path} never scrolls sideways`, async ({ page }) => {
       await page.goto(path);
       await page.waitForLoadState("networkidle");

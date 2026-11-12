@@ -1,4 +1,5 @@
 import {
+  ArrowRight,
   ArrowUpRight,
   BadgeCheck,
   Bomb,
@@ -8,7 +9,10 @@ import {
   ShieldOff,
   Wrench,
 } from "lucide-react";
-import { PageHeader, REPO_URL } from "@/components/app-shell";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { PageHeader } from "@/components/app-shell";
+import { REPO_URL } from "@/lib/site";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +24,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+export const metadata: Metadata = { title: "How it works" };
 
 const STEPS = [
   {
@@ -91,11 +97,22 @@ export default function HowItWorks() {
         title="How it works"
         description="Telltale turns every key an AI agent holds into a tripwire. Nothing about which keys are bait is stored on-chain, so reading the contract tells an attacker nothing."
         actions={
-          <Button variant="outline" asChild className="bg-card">
-            <a href={`${REPO_URL}/blob/main/docs/architecture.md`} target="_blank" rel="noreferrer">
-              Architecture doc <ArrowUpRight className="size-4" />
-            </a>
-          </Button>
+          <>
+            <Button variant="outline" asChild className="bg-card">
+              <a
+                href={`${REPO_URL}/blob/main/docs/architecture.md`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Architecture doc <ArrowUpRight className="size-4" />
+              </a>
+            </Button>
+            <Button asChild data-testid="hiw-open-lab">
+              <Link href="/lab">
+                Open the attack lab <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+          </>
         }
       />
 

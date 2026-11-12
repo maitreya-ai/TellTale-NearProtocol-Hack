@@ -5,6 +5,7 @@
 Built at NEAR HACKATHON 2026 for **AI Security & Defense** (`security`) and **Agent Economy** (`agents`).
 
 - Live demo: _added after deploy_ · Demo video: _added after recording_
+- Web app: landing page at `/`, then **Overview** (`/dashboard`), **Attack lab** (`/lab`) and **How it works** (`/how-it-works`). Next.js 16 on Cloudflare Workers.
 - Design docs: [docs/project-overview.md](docs/project-overview.md), [docs/architecture.md](docs/architecture.md)
 
 ## The problem
@@ -51,12 +52,12 @@ Simulation mode runs the real scenario code against an in-memory vault that foll
 ```bash
 bun install
 printf 'TELLTALE_MOCK=1\nTELLTALE_DEMO=1\n' > apps/web/.dev.vars
-bun run dev            # http://localhost:3000
+bun run dev            # next dev → http://localhost:3000
 ```
 
-The app has three pages: **Overview** (vault state, keys, trips, payments), **Attack lab** (run scenarios with a live log) and **How it works**.
+`/` is the landing page; **Launch** opens the app. The app has three pages: **Overview** (vault state, keys, trips, payments), **Attack lab** (run scenarios with a live log) and **How it works**.
 
-1. Open http://localhost:3000. The Overview shows **ARMED** with four `pay only` agent keys.
+1. Open http://localhost:3000/dashboard. The Overview shows **ARMED** with four `pay only` agent keys.
 2. Go to **Attack lab** and run **Stolen .env**. The log shows the skill stealing three files, the thief's first key returning **TRIPPED**, the second key rejected with "access key does not exist", and the agent locked out. The status turns red. Back on Overview, the key list is empty and the trip log has a new entry.
 3. Click **Re-arm vault (owner)**. Four fresh keys appear and the epoch goes up by one.
 4. Run **Poisoned invoice**. The agent pays the real hosting invoice, then follows the invoice's instruction to call `raise_spending_limit`. That decoy call trips the vault before the 0.45 NEAR payment to the attacker's account can happen.
@@ -89,14 +90,16 @@ You can also run a scenario directly: `bun run scenario stolen-env`, `bun run sc
 
 ## Deploy to Cloudflare Workers
 
-The web app is Next.js App Router code running on [vinext](https://github.com/cloudflare/vinext) with Wrangler. Public settings are in `apps/web/wrangler.jsonc`, and everything else is a Worker secret.
+The web app is Next.js 16 (App Router), deployed to Cloudflare Workers with the official [OpenNext adapter](https://opennext.js.org/cloudflare) (`@opennextjs/cloudflare`) and Wrangler. Public settings are in `apps/web/wrangler.jsonc`, and everything else is a Worker secret. On every request OpenNext copies the Worker's vars and secrets into `process.env`; under `next dev`, `next.config.ts` loads `apps/web/.dev.vars` instead.
 
 ```bash
 bunx wrangler login             # once
-bun run deploy                  # vite build + deploy the "telltale" Worker
+bun run deploy                  # opennextjs-cloudflare build + deploy the "telltale" Worker
 bun run cf:secrets --dry-run    # lists the secrets it will upload from .env.local
 bun run cf:secrets              # uploads them with `wrangler secret bulk` (stdin, no temp file)
 ```
+
+`bun run --cwd apps/web preview` runs the same Worker bundle locally under `wrangler dev`. To give link previews absolute image URLs, build with `SITE_URL=https://telltale.<your-subdomain>.workers.dev bun run deploy` once you know the Worker URL.
 
 Set `DEMO_CONSOLE_TOKEN` to require a token for the red-team console. Leave it empty to let judges run scenarios. The hosted Worker holds the testnet owner key so the console can re-arm. Never do this with a mainnet key.
 
@@ -124,14 +127,14 @@ A decoy call sends an HMAC-signed report to `/api/report`, which trips the vault
 
 ## Repository
 
-| Path              | What                                                                                                                          |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `contracts/vault` | Rust contract (near-sdk 5.30): proofs, trip, re-arm, reporters, events, 22 unit tests                                         |
-| `packages/core`   | Proof format, vault client, signer, key derivation, bait, decoy tools, reporter HMAC                                          |
-| `packages/agent`  | Agent loop (NEAR AI Cloud or a scripted naive agent), scenarios, simulated vault, live wiring                                 |
-| `packages/mcp`    | MCP server with decoy tools                                                                                                   |
-| `apps/web`        | Overview, Attack lab and How it works pages (shadcn/ui, light theme) and API routes on Cloudflare Workers (vinext + Wrangler) |
-| `scripts`         | Testnet setup, bait, attack harness, re-arm, vault lock, secrets upload, test-vector generation                               |
+| Path              | What                                                                                                                                                     |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `contracts/vault` | Rust contract (near-sdk 5.30): proofs, trip, re-arm, reporters, events, 22 unit tests                                                                    |
+| `packages/core`   | Proof format, vault client, signer, key derivation, bait, decoy tools, reporter HMAC                                                                     |
+| `packages/agent`  | Agent loop (NEAR AI Cloud or a scripted naive agent), scenarios, simulated vault, live wiring                                                            |
+| `packages/mcp`    | MCP server with decoy tools                                                                                                                              |
+| `apps/web`        | Landing page (Motion + Lenis), Overview, Attack lab and How it works (shadcn/ui, light theme), API routes; Next.js 16 on Cloudflare Workers via OpenNext |
+| `scripts`         | Testnet setup, bait, attack harness, re-arm, vault lock, secrets upload, test-vector generation                                                          |
 
 ### Contract interface
 
@@ -149,7 +152,7 @@ The proof message format is in [docs/architecture.md](docs/architecture.md#34-pr
 ```bash
 bun run test            # Jest: core, agent scenarios, MCP server, web API helpers (34 tests)
 bun run contract:test   # cargo test: 22 contract unit tests
-bun run e2e             # Playwright on the production Worker bundle: 3 pages, 3 scenarios, desktop + phone (16 tests)
+bun run e2e             # Playwright on the production Worker bundle: landing, 3 app pages, 3 scenarios, 404, desktop + phone (24 tests)
 bun run typecheck && bun run lint
 ```
 
@@ -165,7 +168,7 @@ Husky runs lint-staged on commit (Prettier, ESLint, `cargo fmt --check`). On pus
 ## Hackathon disclosure
 
 - All code was written during NEAR HACKATHON 2026 (from 11 Nov 2026). No earlier codebase.
-- Libraries: near-sdk, near-api-js, @noble/curves and @noble/hashes, openai (NEAR AI Cloud client), @modelcontextprotocol/sdk, React, vinext and Vite, Wrangler, Tailwind CSS, Jest, Playwright. The web app started from `create-vinext-app`.
+- Libraries: near-sdk, near-api-js, @noble/curves and @noble/hashes, openai (NEAR AI Cloud client), @modelcontextprotocol/sdk, React, Next.js, OpenNext for Cloudflare, Wrangler, Tailwind CSS, shadcn/ui, Motion, Lenis, Jest, Playwright. Fonts: Geist and Instrument Serif (SIL OFL, self-hosted). The web app started from `create-vinext-app` and moved to Next.js + OpenNext on 12 Nov.
 - Built with AI assistance (Claude Code).
 
 ## License

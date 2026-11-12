@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "lenis/dist/lenis.css";
 
-/* Light only: off-white page, white cards, near-black text, one amber "telltale" light. */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -31,9 +31,11 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  /* Self-hosted with next/font/local in app/layout.tsx (files and licences in app/fonts). */
   --font-sans:
-    "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    var(--font-geist), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, "Times New Roman", serif;
 }
 
 :root {
@@ -125,4 +127,55 @@
 .hero-grid {
   background-image: radial-gradient(rgb(10 10 10 / 0.07) 1px, transparent 1px);
   background-size: 14px 14px;
+}
+
+/* ---------- Landing page ---------- */
+
+/* Dot field that fades out toward the edges. */
+.dot-field {
+  background-image: radial-gradient(rgb(10 10 10 / 0.1) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 38%, #000 25%, transparent 78%);
+}
+
+/* Faint vertical rules, like a drafting sheet. */
+.rule-field {
+  background-image: linear-gradient(to right, rgb(10 10 10 / 0.045) 1px, transparent 1px);
+  background-size: calc(100% / 6) 100%;
+  mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 70%, transparent);
+}
+
+/* Soft fade on the edges of the horizontal marquee. */
+.edge-fade {
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+}
+
+/* The logo lamp breathes on the landing page. */
+@media (prefers-reduced-motion: no-preference) {
+  .logo-lamp-live {
+    animation: logo-lamp 3.2s ease-in-out infinite;
+    transform-origin: 11.25px 16px;
+  }
+}
+@keyframes logo-lamp {
+  50% {
+    fill: #fbbf24;
+    transform: scale(1.12);
+  }
+}
+
+/* Moving dashes on a wire carrying an attack. */
+@media (prefers-reduced-motion: no-preference) {
+  .wire-flow {
+    animation: wire-flow 0.9s linear infinite;
+  }
+}
+@keyframes wire-flow {
+  to {
+    stroke-dashoffset: -6;
+  }
+}
+
+::selection {
+  background: rgb(245 158 11 / 0.25);
 }

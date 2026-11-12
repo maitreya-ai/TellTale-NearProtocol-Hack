@@ -1,0 +1,1 @@
+Telltale: every agent key is a tripwire. A NEAR vault that freezes itself and deletes every key.

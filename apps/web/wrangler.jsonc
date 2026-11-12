@@ -1,15 +1,13 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "telltale",
+  // Built by `opennextjs-cloudflare build` (Next.js → Cloudflare Workers adapter).
+  "main": ".open-next/worker.js",
   "compatibility_date": "2026-11-01",
-  "compatibility_flags": ["nodejs_compat"],
-  "main": "vinext/server/fetch-handler",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
-    "directory": "dist/client",
-    "html_handling": "none",
-    "not_found_handling": "none",
+    "directory": ".open-next/assets",
     "binding": "ASSETS",
-    "run_worker_first": ["/*", "!/_next/static/*", "!/*/_next/static/*"],
   },
   "observability": { "enabled": true },
   // Public, non-secret settings. Account ids and keys are set as secrets with
@@ -24,7 +22,7 @@
     "TELLTALE_MOCK": "0",
   },
   "env": {
-    // Used by Playwright: CLOUDFLARE_ENV=e2e reads .dev.vars.e2e (simulation, no secrets).
+    // Used by Playwright: `wrangler dev --env e2e` reads .dev.vars.e2e (simulation, no secrets).
     "e2e": {
       "vars": {
         "NEAR_NETWORK": "testnet",

@@ -36,7 +36,7 @@ flowchart LR
 | Core library   | `packages/core`   | Node and browser (TypeScript) | Proof format, vault client, bait generation, decoy tool definitions, config           |
 | Agent          | `packages/agent`  | Node                          | LLM tool loop on NEAR AI Cloud, plus the scripted model used in tests                 |
 | MCP server     | `packages/mcp`    | Node (stdio)                  | Exposes decoy tools to any MCP client and reports calls                               |
-| Web app        | `apps/web`        | vinext on Cloudflare Workers  | Dashboard, red-team console, and backend route handlers (signer, reporter, scenarios) |
+| Web app        | `apps/web`        | Next.js on Cloudflare Workers | Dashboard, red-team console, and backend route handlers (signer, reporter, scenarios) |
 | Scripts        | `scripts/`        | Bun                           | Testnet setup, deploy, bait planting, attack harness, vault lock                      |
 
 ## 2. Accounts on testnet
@@ -164,7 +164,7 @@ With `TELLTALE_MOCK=1`, the API runs the real scenario code against `SimulatedVa
 
 ### 4.6 Hosting
 
-The web app is Next.js App Router code running on vinext, deployed to Cloudflare Workers with Wrangler (`apps/web/wrangler.jsonc`, `nodejs_compat`). Public settings are Wrangler `vars`. Account ids and keys are Worker secrets uploaded by `bun run cf:secrets`. Locally, the Worker reads `apps/web/.dev.vars`, which `setup-testnet` writes. Playwright uses `CLOUDFLARE_ENV=e2e` with `.dev.vars.e2e` (simulation only).
+The web app is Next.js 16 (App Router), built for Cloudflare Workers by the OpenNext adapter (`@opennextjs/cloudflare`) and deployed with Wrangler (`apps/web/wrangler.jsonc`, `nodejs_compat`). Public settings are Wrangler `vars`. Account ids and keys are Worker secrets uploaded by `bun run cf:secrets`; OpenNext copies vars and secrets into `process.env` on each request. Under `next dev`, `next.config.ts` loads `apps/web/.dev.vars`, which `setup-testnet` writes. Playwright runs the OpenNext bundle under `wrangler dev --env e2e` with `.dev.vars.e2e` (simulation only).
 
 ## 5. Agent (`packages/agent`)
 
@@ -263,7 +263,7 @@ All variables are listed in `.env.example`. Scripts read `.env.local`, and the W
 
 ```text
 .
-├── apps/web/                vinext app on Workers: dashboard, console, API routes
+├── apps/web/                Next.js app on Workers: landing, dashboard, console, API routes
 │   ├── app/                 routes (UI + app/api/*)
 │   ├── components/          Dashboard and Console (client)
 │   ├── lib/server/          runtime (live or simulated), HTTP helpers
@@ -282,7 +282,7 @@ All variables are listed in `.env.example`. Scripts read `.env.local`, and the W
 - **TypeScript** 6 with strict settings and shared `tsconfig.base.json`.
 - **Jest** 30 with `@swc/jest` for unit tests in `packages/*` and `apps/web`.
 - **Playwright** for end-to-end tests of the dashboard in simulation mode, on desktop and phone viewports.
-- **vinext + Wrangler** for the Cloudflare Workers build and deploy.
+- **Next.js + OpenNext + Wrangler** for the Cloudflare Workers build and deploy.
 - **Husky** hooks:
   - `pre-commit` runs lint-staged (Prettier, ESLint, `rustfmt --check`).
   - `pre-push` runs typecheck, Jest and `cargo test`.

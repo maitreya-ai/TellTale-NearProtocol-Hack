@@ -13,6 +13,8 @@ const swc = [
 const base = {
   transform: { "^.+\\.(t|j)sx?$": swc },
   testEnvironment: "node",
+  // Next.js and OpenNext build output contains copies of package.json files.
+  modulePathIgnorePatterns: ["<rootDir>/apps/web/.next/", "<rootDir>/apps/web/.open-next/"],
   moduleFileExtensions: ["ts", "tsx", "js", "mjs", "cjs", "json"],
   // near-api-js and noble ship ESM; let swc transpile them for Jest.
   // Bun keeps packages under node_modules/.bun/<name@ver>/node_modules/.
@@ -31,7 +33,7 @@ export default {
       ...base,
       displayName: "web",
       roots: ["<rootDir>/apps/web"],
-      testPathIgnorePatterns: ["/e2e/", "/dist/", "/.vinext/"],
+      testPathIgnorePatterns: ["/e2e/", "/.next/", "/.open-next/"],
       moduleNameMapper: { "^@/(.*)$": "<rootDir>/apps/web/$1" },
     },
   ],

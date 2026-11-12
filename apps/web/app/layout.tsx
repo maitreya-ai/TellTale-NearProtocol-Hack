@@ -1,35 +1,67 @@
-import type { Metadata } from "next";
-import { AppShell } from "@/components/app-shell";
+import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { VaultProvider } from "@/components/vault-provider";
 import "./globals.css";
 
+const geist = localFont({
+  src: "./fonts/geist.woff2",
+  variable: "--font-geist",
+  weight: "100 900",
+  display: "swap",
+});
+const geistMono = localFont({
+  src: "./fonts/geist-mono.woff2",
+  variable: "--font-geist-mono",
+  weight: "100 900",
+  display: "swap",
+});
+const instrumentSerif = localFont({
+  src: [
+    { path: "./fonts/instrument-serif.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/instrument-serif-italic.woff2", weight: "400", style: "italic" },
+  ],
+  variable: "--font-instrument-serif",
+  display: "swap",
+});
+
+const description =
+  "A NEAR vault for AI agents. Use a stolen key or hijack the agent, and the vault freezes itself and deletes every key. No human in the loop.";
+
 export const metadata: Metadata = {
-  title: "Telltale",
-  description:
-    "Every AI agent key is a tripwire. A stolen key or a hijacked agent freezes the vault and deletes every key, on NEAR.",
+  // Absolute URLs for the social cards. Set SITE_URL at build time once the Worker URL is known.
+  metadataBase: new URL(process.env.SITE_URL || "http://localhost:3000"),
+  title: { default: "Telltale · Every agent key is a tripwire", template: "%s · Telltale" },
+  description,
+  applicationName: "Telltale",
+  openGraph: {
+    type: "website",
+    siteName: "Telltale",
+    title: "Telltale · Every agent key is a tripwire",
+    description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Telltale · Every agent key is a tripwire",
+    description,
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#fafaf9",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#fafaf9" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap"
-        />
-      </head>
+    <html
+      lang="en"
+      className={`${geist.variable} ${geistMono.variable} ${instrumentSerif.variable}`}
+    >
       <body>
-        <TooltipProvider delayDuration={200}>
-          <VaultProvider>
-            <AppShell>{children}</AppShell>
-          </VaultProvider>
-        </TooltipProvider>
+        <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
         <Toaster position="bottom-right" />
       </body>
     </html>

@@ -14,13 +14,13 @@ export default defineConfig({
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
     { name: "phone", use: { ...devices["Pixel 7"] } },
   ],
-  // Tests the production Worker bundle (simulation vars from env.e2e) under wrangler dev.
-  // Set E2E_DEV=1 to test the Vite dev server instead.
+  // Tests the production Worker bundle (OpenNext build, simulation vars from env.e2e) under
+  // wrangler dev. Set E2E_DEV=1 to test `next dev` instead.
   webServer: {
     command: process.env.E2E_DEV
-      ? `vite dev --port ${port} --strictPort`
-      : `vite build && wrangler dev --config dist/server/wrangler.json --port ${port} --ip 127.0.0.1`,
-    env: { CLOUDFLARE_ENV: "e2e" },
+      ? `next dev --port ${port}`
+      : `opennextjs-cloudflare build && wrangler dev --env e2e --port ${port} --ip 127.0.0.1`,
+    env: { TELLTALE_MOCK: "1", TELLTALE_DEMO: "1", NEXT_TELEMETRY_DISABLED: "1" },
     url: `http://localhost:${port}/api/health`,
     reuseExistingServer: false,
     timeout: 240_000,
