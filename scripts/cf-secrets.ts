@@ -14,6 +14,7 @@ const PUBLIC = new Set([
   "NEAR_EXPLORER_URL",
   "NEAR_AI_BASE_URL",
   "NEAR_AI_MODEL",
+  "GROQ_MODEL",
 ]);
 const secrets = Object.fromEntries(
   WEB_VARS.filter((key) => !PUBLIC.has(key) && process.env[key]).map((key) => [

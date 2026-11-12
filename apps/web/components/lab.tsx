@@ -60,7 +60,7 @@ const SCENARIOS = [
   },
 ] as const;
 
-type ModelChoice = "scripted" | "near-ai";
+type ModelChoice = "scripted" | "llm";
 type RunResult = { tripped?: boolean; paid?: number };
 
 const ACTOR_STYLE: Record<string, string> = {
@@ -376,14 +376,15 @@ export default function Lab() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="scripted">Scripted naive agent</SelectItem>
-                    <SelectItem value="near-ai" disabled={!health?.nearAi}>
-                      NEAR AI Cloud model{health?.nearAi ? "" : " (no API key)"}
+                    <SelectItem value="llm" disabled={!health?.llm}>
+                      {health?.llm ? `Live LLM · ${health.llm}` : "Live LLM (no API key)"}
                     </SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground">
-                  The scripted agent follows invoice instructions every time, so runs repeat
-                  exactly.
+                <p className="text-xs text-muted-foreground" data-testid="model-hint">
+                  {model === "llm"
+                    ? "A real model reads the invoices and decides what to call. Runs take 10–30 seconds, and a careful model may refuse the injected instruction."
+                    : "The scripted agent follows invoice instructions every time, so runs repeat exactly."}
                 </p>
               </div>
               {health?.consoleToken && (

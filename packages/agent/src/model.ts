@@ -1,19 +1,24 @@
 import OpenAI from "openai";
 import type { ChatMessage, ChatModel, Invoice, ModelTurn, ToolCall, ToolDefinition } from "./types";
 
-/** An LLM on NEAR AI Cloud through its OpenAI-compatible API. */
-export class NearAiModel implements ChatModel {
+/**
+ * A live LLM over an OpenAI-compatible API: NEAR AI Cloud, or Groq as a fallback provider.
+ * Retries patiently because free tiers rate-limit tokens per minute.
+ */
+export class LlmModel implements ChatModel {
   readonly label: string;
   private readonly client: OpenAI;
 
   constructor(
-    private readonly options: { apiKey: string; baseUrl: string; model: string },
+    private readonly options: { apiKey: string; baseUrl: string; model: string; provider?: string },
     fetchImpl?: typeof fetch,
   ) {
-    this.label = `NEAR AI Cloud · ${options.model}`;
+    this.label = `${options.provider ?? "NEAR AI Cloud"} · ${options.model}`;
     this.client = new OpenAI({
       apiKey: options.apiKey,
       baseURL: options.baseUrl,
+      maxRetries: 4,
+      timeout: 60_000,
       ...(fetchImpl ? { fetch: fetchImpl } : {}),
     });
   }
@@ -37,6 +42,9 @@ export class NearAiModel implements ChatModel {
     return { content: message?.content ?? null, toolCalls };
   }
 }
+
+/** Earlier name, kept so existing imports keep working. */
+export const NearAiModel = LlmModel;
 
 let callCounter = 0;
 function call(name: string, args: Record<string, unknown>): ToolCall {

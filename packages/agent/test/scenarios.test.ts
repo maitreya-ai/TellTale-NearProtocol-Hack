@@ -1,5 +1,5 @@
 import { describe, expect, it, jest } from "@jest/globals";
-import { NearAiModel, runScenario, AGENT_TOOLS } from "../src";
+import { NearAiModel, parseModelChoice, runScenario, AGENT_TOOLS } from "../src";
 import { SimulatedVault as FakeChain } from "../src";
 
 describe("scenarios against the fake vault", () => {
@@ -100,5 +100,14 @@ describe("NearAiModel", () => {
     expect(String(fetchMock.mock.calls[0]![0])).toBe(
       "https://cloud-api.near.ai/v1/chat/completions",
     );
+  });
+});
+
+describe("parseModelChoice", () => {
+  it("maps llm and the old near-ai id to the live model", () => {
+    expect(parseModelChoice("llm")).toBe("llm");
+    expect(parseModelChoice("near-ai")).toBe("llm");
+    expect(parseModelChoice(null)).toBe("scripted");
+    expect(parseModelChoice("anything")).toBe("scripted");
   });
 });

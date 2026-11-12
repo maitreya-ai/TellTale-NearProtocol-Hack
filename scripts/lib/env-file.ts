@@ -48,6 +48,8 @@ export const WEB_VARS = [
   "NEAR_AI_API_KEY",
   "NEAR_AI_BASE_URL",
   "NEAR_AI_MODEL",
+  "GROQ_API_KEY",
+  "GROQ_MODEL",
   "DEMO_CONSOLE_TOKEN",
 ] as const;
 

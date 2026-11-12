@@ -7,7 +7,8 @@ export interface Health {
   mode: "live" | "simulation";
   console: boolean;
   consoleToken: boolean;
-  nearAi: boolean;
+  /** Live LLM label such as "Groq · openai/gpt-oss-120b", or null. */
+  llm: string | null;
 }
 
 interface VaultContextValue {

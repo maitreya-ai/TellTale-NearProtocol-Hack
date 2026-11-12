@@ -11,16 +11,21 @@ import {
   type ReportKind,
 } from "@telltale/core";
 import type { KeyPairString } from "near-api-js";
-import { NearAiModel, ScriptedNaiveModel } from "./model";
+import { LlmModel, ScriptedNaiveModel } from "./model";
 import type { ScenarioPorts } from "./scenarios";
 import type { ChatModel, Log } from "./types";
 
 type Env = Record<string, string | undefined>;
 
-export type ModelChoice = "scripted" | "near-ai";
+export type ModelChoice = "scripted" | "llm";
+
+/** Parses a model choice from a query string or CLI flag; "near-ai" is the old id for "llm". */
+export function parseModelChoice(value: string | null | undefined): ModelChoice {
+  return value === "llm" || value === "near-ai" ? "llm" : "scripted";
+}
 
 export function pickModel(choice: ModelChoice, env: Env = process.env): ChatModel {
-  return choice === "near-ai" ? new NearAiModel(aiConfig(env)) : new ScriptedNaiveModel();
+  return choice === "llm" ? new LlmModel(aiConfig(env)) : new ScriptedNaiveModel();
 }
 
 export function liveVault(env: Env = process.env) {

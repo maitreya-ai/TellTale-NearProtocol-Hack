@@ -18,6 +18,7 @@
     "NEAR_EXPLORER_URL": "https://testnet.nearblocks.io",
     "NEAR_AI_BASE_URL": "https://cloud-api.near.ai/v1",
     "NEAR_AI_MODEL": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "GROQ_MODEL": "openai/gpt-oss-120b",
     "TELLTALE_DEMO": "1",
     "TELLTALE_MOCK": "0",
     // Absolute base for social-card URLs (pages render in the Worker at request time).
@@ -32,6 +33,7 @@
         "NEAR_EXPLORER_URL": "https://testnet.nearblocks.io",
         "NEAR_AI_BASE_URL": "https://cloud-api.near.ai/v1",
         "NEAR_AI_MODEL": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "GROQ_MODEL": "openai/gpt-oss-120b",
         "TELLTALE_DEMO": "1",
         "TELLTALE_MOCK": "1",
       },

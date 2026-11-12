@@ -155,12 +155,16 @@ await fetch("${origin}/api/report", {
         <div className="grid gap-6 md:grid-cols-2">
           <Integration
             icon={<Sparkles className="size-4" />}
-            title="NEAR AI Cloud"
-            description="The attack lab can drive a real model through the OpenAI-compatible endpoint at cloud-api.near.ai."
+            title="Live LLM"
+            description={
+              health?.llm
+                ? `The attack lab can run the agent on ${health.llm}. NEAR AI Cloud is used whenever its key is set; any OpenAI-compatible endpoint works.`
+                : "Set NEAR_AI_API_KEY (NEAR AI Cloud) or GROQ_API_KEY to let the attack lab run the agent on a real model."
+            }
             status={
               <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Lamp state={health?.nearAi ? "armed" : "idle"} className="size-1.5" />
-                {health?.nearAi ? "Connected" : "Not configured"}
+                <Lamp state={health?.llm ? "armed" : "idle"} className="size-1.5" />
+                {health?.llm ? "Connected" : "Not configured"}
               </span>
             }
           />
