@@ -2,8 +2,10 @@
 
 import { MotionConfig } from "motion/react";
 import { Cta, Footer, Stats, WhyNear } from "./closing";
+import { Faq } from "./faq";
 import { Hero } from "./hero";
 import { How } from "./how";
+import { Integrate } from "./integrate";
 import { SmoothScroll } from "./motion";
 import { LandingNav } from "./nav";
 import { Threats } from "./threats";
@@ -21,7 +23,9 @@ export function Landing() {
             <Threats />
             <How />
             <Stats />
+            <Integrate />
             <WhyNear />
+            <Faq />
             <Cta />
           </main>
           <Footer />

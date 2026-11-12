@@ -99,7 +99,7 @@ bun run cf:secrets --dry-run    # lists the secrets it will upload from .env.loc
 bun run cf:secrets              # uploads them with `wrangler secret bulk` (stdin, no temp file)
 ```
 
-`bun run --cwd apps/web preview` runs the same Worker bundle locally under `wrangler dev`. To give link previews absolute image URLs, build with `SITE_URL=https://telltale.<your-subdomain>.workers.dev bun run deploy` once you know the Worker URL.
+`bun run --cwd apps/web preview` runs the same Worker bundle locally under `wrangler dev`. Link previews use `SITE_URL` from `apps/web/wrangler.jsonc` `vars`; change it if you deploy under another URL.
 
 Set `DEMO_CONSOLE_TOKEN` to require a token for the red-team console. Leave it empty to let judges run scenarios. The hosted Worker holds the testnet owner key so the console can re-arm. Never do this with a mainnet key.
 

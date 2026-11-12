@@ -10,7 +10,9 @@ import { REPO_URL } from "@/lib/site";
 
 const LINKS = [
   { href: "#how", label: "How it works" },
+  { href: "#integrate", label: "Integrate" },
   { href: "#near", label: "Why NEAR" },
+  { href: "#faq", label: "FAQ" },
   { href: "/dashboard", label: "Dashboard" },
 ] as const;
 

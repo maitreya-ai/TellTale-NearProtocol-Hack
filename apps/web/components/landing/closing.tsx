@@ -21,12 +21,14 @@ export function Stats() {
     <Section label="At a glance">
       <div className="grid grid-cols-2 gap-px bg-border md:grid-cols-4">
         {STATS.map((s, i) => (
-          <Reveal key={s.label} delay={i * 0.06} className="bg-background px-5 py-7 sm:px-8">
-            <div className="text-3xl font-semibold tracking-tight tabular-nums sm:text-4xl">
-              {s.value}
-            </div>
-            <div className="mt-1.5 text-sm text-muted-foreground">{s.label}</div>
-          </Reveal>
+          <div key={s.label} className="bg-background px-5 py-7 sm:px-8">
+            <Reveal delay={i * 0.06}>
+              <div className="text-3xl font-semibold tracking-tight tabular-nums sm:text-4xl">
+                {s.value}
+              </div>
+              <div className="mt-1.5 text-sm text-muted-foreground">{s.label}</div>
+            </Reveal>
+          </div>
         ))}
       </div>
     </Section>
@@ -66,20 +68,18 @@ export function WhyNear() {
         {FEATURES.map((f, i) => {
           const Icon = f.icon;
           return (
-            <Reveal
-              key={f.title}
-              delay={i * 0.06}
-              className="flex flex-col bg-background p-5 sm:p-8"
-            >
-              <span className="grid size-9 place-items-center rounded-md border bg-card shadow-xs">
-                <Icon className="size-4" />
-              </span>
-              <h3 className="mt-5 text-base font-semibold tracking-tight">{f.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{f.body}</p>
-              <code className="mt-5 w-fit rounded-md border bg-card px-2 py-1 font-mono text-xs">
-                {f.code}
-              </code>
-            </Reveal>
+            <div key={f.title} className="bg-background p-5 sm:p-8">
+              <Reveal delay={i * 0.06} className="flex flex-col">
+                <span className="grid size-9 place-items-center rounded-md border bg-card shadow-xs">
+                  <Icon className="size-4" />
+                </span>
+                <h3 className="mt-5 text-base font-semibold tracking-tight">{f.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{f.body}</p>
+                <code className="mt-5 w-fit rounded-md border bg-card px-2 py-1 font-mono text-xs">
+                  {f.code}
+                </code>
+              </Reveal>
+            </div>
           );
         })}
       </div>
@@ -126,34 +126,86 @@ export function Cta() {
   );
 }
 
+const FOOTER = [
+  {
+    title: "Product",
+    links: [
+      { label: "Overview", href: "/dashboard" },
+      { label: "Activity", href: "/activity" },
+      { label: "Attack lab", href: "/lab" },
+      { label: "Policy", href: "/policy" },
+    ],
+  },
+  {
+    title: "Developers",
+    links: [
+      { label: "Integrations", href: "/integrations" },
+      { label: "How it works", href: "/how-it-works" },
+      { label: "MCP server", href: `${REPO_URL}/tree/main/packages/mcp` },
+      { label: "Contract", href: `${REPO_URL}/tree/main/contracts/vault` },
+    ],
+  },
+  {
+    title: "Resources",
+    links: [
+      { label: "Architecture", href: `${REPO_URL}/blob/main/docs/architecture.md` },
+      { label: "GitHub", href: REPO_URL },
+      { label: "License (MIT)", href: `${REPO_URL}/blob/main/LICENSE` },
+    ],
+  },
+];
+
 export function Footer() {
   return (
     <footer className="relative border-t">
       <Corners />
-      <div className="flex flex-col items-center justify-between gap-4 px-5 py-6 text-sm text-muted-foreground sm:flex-row sm:px-8">
-        <div className="flex items-center gap-2.5">
-          <LogoMark className="size-6" />
-          <Wordmark className="text-foreground" />
-          <span className="text-border">/</span>
-          <span>Built at NEAR Hackathon 2026</span>
+      <div className="grid grid-cols-2 gap-8 px-5 py-10 sm:px-8 md:grid-cols-[1.6fr_1fr_1fr_1fr]">
+        <div className="col-span-2 md:col-span-1">
+          <div className="flex items-center gap-2.5">
+            <LogoMark className="size-7" />
+            <Wordmark className="text-[15px]" />
+          </div>
+          <p className="mt-3 max-w-56 text-sm text-muted-foreground">
+            Every agent key is a tripwire. Wallet security for AI agents on NEAR.
+          </p>
         </div>
-        <nav aria-label="Footer" className="flex items-center gap-5">
-          <Link href="/dashboard" className="transition-colors hover:text-foreground">
-            Dashboard
-          </Link>
-          <Link href="/lab" className="transition-colors hover:text-foreground">
-            Attack lab
-          </Link>
-          <a
-            href={REPO_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1.5 transition-colors hover:text-foreground"
-          >
-            <GitHubMark className="size-4" />
-            GitHub
-          </a>
-        </nav>
+        {FOOTER.map((col) => (
+          <nav key={col.title} aria-label={col.title}>
+            <h3 className="text-sm font-medium">{col.title}</h3>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+              {col.links.map((l) => (
+                <li key={l.label}>
+                  {l.href.startsWith("http") ? (
+                    <a
+                      href={l.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="transition-colors hover:text-foreground"
+                    >
+                      {l.label}
+                    </a>
+                  ) : (
+                    <Link href={l.href} className="transition-colors hover:text-foreground">
+                      {l.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))}
+      </div>
+      <div className="flex items-center justify-between border-t px-5 py-4 text-xs text-muted-foreground sm:px-8">
+        <span>© 2026 Telltale</span>
+        <a
+          href={REPO_URL}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Source on GitHub"
+          className="transition-colors hover:text-foreground"
+        >
+          <GitHubMark className="size-4" />
+        </a>
       </div>
     </footer>
   );

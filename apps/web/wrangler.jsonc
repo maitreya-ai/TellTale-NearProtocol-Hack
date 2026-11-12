@@ -20,6 +20,8 @@
     "NEAR_AI_MODEL": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
     "TELLTALE_DEMO": "1",
     "TELLTALE_MOCK": "0",
+    // Absolute base for social-card URLs (pages render in the Worker at request time).
+    "SITE_URL": "https://telltale.maitreyak1806.workers.dev",
   },
   "env": {
     // Used by Playwright: `wrangler dev --env e2e` reads .dev.vars.e2e (simulation, no secrets).

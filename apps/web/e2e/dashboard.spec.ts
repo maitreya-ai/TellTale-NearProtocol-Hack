@@ -66,7 +66,36 @@ test.describe("Telltale (simulation)", () => {
     await expect(page.getByText("telltale-pay-v1", { exact: false })).toBeVisible();
   });
 
-  for (const path of ["/", "/dashboard", "/lab", "/how-it-works"]) {
+  test("console pages render from the vault snapshot", async ({ page }) => {
+    await page.goto("/keys");
+    await expect(page.getByTestId("keys-table")).toContainText("pay only");
+    await page.goto("/activity");
+    await expect(page.getByRole("heading", { name: "Activity" })).toBeVisible();
+    await page.goto("/policy");
+    await expect(page.getByText("Spending limits")).toBeVisible();
+    await page.goto("/integrations");
+    await expect(page.getByText("claude_desktop_config.json")).toBeVisible();
+  });
+
+  test("the command menu jumps to a page", async ({ page }) => {
+    await page.goto("/dashboard");
+    await expect(page.getByTestId("state-word")).toBeVisible();
+    await page.keyboard.press("ControlOrMeta+k");
+    await page.getByPlaceholder("Search pages and actions…").fill("policy");
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/\/policy$/);
+  });
+
+  for (const path of [
+    "/",
+    "/dashboard",
+    "/activity",
+    "/keys",
+    "/policy",
+    "/integrations",
+    "/lab",
+    "/how-it-works",
+  ]) {
     test(`${path} never scrolls sideways`, async ({ page }) => {
       await page.goto(path);
       await page.waitForLoadState("networkidle");
